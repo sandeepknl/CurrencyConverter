@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+struct APIEndpoints {
+    
+    static let currencyList = "http://api.exchangeratesapi.io/v1/latest?access_key=a00e38904673a306195a8cec5eb29cc3&format=1"
+    
+}
+

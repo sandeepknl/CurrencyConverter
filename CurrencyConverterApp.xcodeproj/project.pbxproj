@@ -16,6 +16,21 @@
 		41D53C902A4073C100545AB4 /* CurrencyConverterAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53C8F2A4073C100545AB4 /* CurrencyConverterAppTests.swift */; };
 		41D53C9A2A4073C100545AB4 /* CurrencyConverterAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53C992A4073C100545AB4 /* CurrencyConverterAppUITests.swift */; };
 		41D53C9C2A4073C100545AB4 /* CurrencyConverterAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53C9B2A4073C100545AB4 /* CurrencyConverterAppUITestsLaunchTests.swift */; };
+		41D53CAA2A409A6500545AB4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 41D53CA92A409A6500545AB4 /* FirebaseAuth */; };
+		41D53CAD2A409B5500545AB4 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 41D53CAC2A409B5500545AB4 /* GoogleSignIn */; };
+		41D53CAF2A409B5500545AB4 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 41D53CAE2A409B5500545AB4 /* GoogleSignInSwift */; };
+		41D53CB12A409C8200545AB4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 41D53CB02A409C8100545AB4 /* GoogleService-Info.plist */; };
+		41D53CB32A409DC800545AB4 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CB22A409DC800545AB4 /* LoginViewController.swift */; };
+		41D53CB52A40A62900545AB4 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CB42A40A62900545AB4 /* HomeViewController.swift */; };
+		41D53CB82A40A74B00545AB4 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CB72A40A74B00545AB4 /* File.swift */; };
+		41D53CBB2A40B2A100545AB4 /* iOSDropDown in Frameworks */ = {isa = PBXBuildFile; productRef = 41D53CBA2A40B2A100545AB4 /* iOSDropDown */; };
+		41D53CBF2A40B76900545AB4 /* CurrencyList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CBE2A40B76900545AB4 /* CurrencyList.swift */; };
+		41D53CC12A40BDD100545AB4 /* Rates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CC02A40BDD100545AB4 /* Rates.swift */; };
+		41D53CC32A40C2E800545AB4 /* WebServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CC22A40C2E800545AB4 /* WebServiceManager.swift */; };
+		41D53CC62A40C39800545AB4 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 41D53CC52A40C39800545AB4 /* Alamofire */; };
+		41D53CC82A40C3ED00545AB4 /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CC72A40C3ED00545AB4 /* APIManager.swift */; };
+		41D53CCB2A40C87A00545AB4 /* APIEndPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CCA2A40C87A00545AB4 /* APIEndPoints.swift */; };
+		41D53CCE2A40C94200545AB4 /* CurrencyListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D53CCD2A40C94200545AB4 /* CurrencyListViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +64,16 @@
 		41D53C952A4073C100545AB4 /* CurrencyConverterAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CurrencyConverterAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		41D53C992A4073C100545AB4 /* CurrencyConverterAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyConverterAppUITests.swift; sourceTree = "<group>"; };
 		41D53C9B2A4073C100545AB4 /* CurrencyConverterAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyConverterAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		41D53CB02A409C8100545AB4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
+		41D53CB22A409DC800545AB4 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		41D53CB42A40A62900545AB4 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
+		41D53CB72A40A74B00545AB4 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
+		41D53CBE2A40B76900545AB4 /* CurrencyList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyList.swift; sourceTree = "<group>"; };
+		41D53CC02A40BDD100545AB4 /* Rates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rates.swift; sourceTree = "<group>"; };
+		41D53CC22A40C2E800545AB4 /* WebServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebServiceManager.swift; sourceTree = "<group>"; };
+		41D53CC72A40C3ED00545AB4 /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
+		41D53CCA2A40C87A00545AB4 /* APIEndPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndPoints.swift; sourceTree = "<group>"; };
+		41D53CCD2A40C94200545AB4 /* CurrencyListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyListViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +81,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41D53CC62A40C39800545AB4 /* Alamofire in Frameworks */,
+				41D53CAF2A409B5500545AB4 /* GoogleSignInSwift in Frameworks */,
+				41D53CAA2A409A6500545AB4 /* FirebaseAuth in Frameworks */,
+				41D53CAD2A409B5500545AB4 /* GoogleSignIn in Frameworks */,
+				41D53CBB2A40B2A100545AB4 /* iOSDropDown in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,13 +129,18 @@
 		41D53C772A4073BD00545AB4 /* CurrencyConverterApp */ = {
 			isa = PBXGroup;
 			children = (
+				41D53CCC2A40C91B00545AB4 /* ViewModel */,
+				41D53CC92A40C84700545AB4 /* WebService */,
+				41D53CBD2A40B73600545AB4 /* Model */,
+				41D53CBC2A40B71100545AB4 /* View */,
+				41D53CB62A40A73600545AB4 /* Constants */,
 				41D53C782A4073BD00545AB4 /* AppDelegate.swift */,
 				41D53C7A2A4073BD00545AB4 /* SceneDelegate.swift */,
-				41D53C7C2A4073BD00545AB4 /* ViewController.swift */,
 				41D53C7E2A4073BD00545AB4 /* Main.storyboard */,
 				41D53C812A4073C100545AB4 /* Assets.xcassets */,
 				41D53C832A4073C100545AB4 /* LaunchScreen.storyboard */,
 				41D53C862A4073C100545AB4 /* Info.plist */,
+				41D53CB02A409C8100545AB4 /* GoogleService-Info.plist */,
 			);
 			path = CurrencyConverterApp;
 			sourceTree = "<group>";
@@ -127,6 +162,51 @@
 			path = CurrencyConverterAppUITests;
 			sourceTree = "<group>";
 		};
+		41D53CB62A40A73600545AB4 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				41D53CB72A40A74B00545AB4 /* File.swift */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
+		41D53CBC2A40B71100545AB4 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				41D53CB22A409DC800545AB4 /* LoginViewController.swift */,
+				41D53CB42A40A62900545AB4 /* HomeViewController.swift */,
+				41D53C7C2A4073BD00545AB4 /* ViewController.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		41D53CBD2A40B73600545AB4 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				41D53CBE2A40B76900545AB4 /* CurrencyList.swift */,
+				41D53CC02A40BDD100545AB4 /* Rates.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		41D53CC92A40C84700545AB4 /* WebService */ = {
+			isa = PBXGroup;
+			children = (
+				41D53CC22A40C2E800545AB4 /* WebServiceManager.swift */,
+				41D53CC72A40C3ED00545AB4 /* APIManager.swift */,
+				41D53CCA2A40C87A00545AB4 /* APIEndPoints.swift */,
+			);
+			path = WebService;
+			sourceTree = "<group>";
+		};
+		41D53CCC2A40C91B00545AB4 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				41D53CCD2A40C94200545AB4 /* CurrencyListViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -143,6 +223,13 @@
 			dependencies = (
 			);
 			name = CurrencyConverterApp;
+			packageProductDependencies = (
+				41D53CA92A409A6500545AB4 /* FirebaseAuth */,
+				41D53CAC2A409B5500545AB4 /* GoogleSignIn */,
+				41D53CAE2A409B5500545AB4 /* GoogleSignInSwift */,
+				41D53CBA2A40B2A100545AB4 /* iOSDropDown */,
+				41D53CC52A40C39800545AB4 /* Alamofire */,
+			);
 			productName = CurrencyConverterApp;
 			productReference = 41D53C752A4073BD00545AB4 /* CurrencyConverterApp.app */;
 			productType = "com.apple.product-type.application";
@@ -215,6 +302,12 @@
 				Base,
 			);
 			mainGroup = 41D53C6C2A4073BD00545AB4;
+			packageReferences = (
+				41D53CA82A409A6500545AB4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				41D53CAB2A409B5400545AB4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				41D53CB92A40B2A000545AB4 /* XCRemoteSwiftPackageReference "iOSDropDown" */,
+				41D53CC42A40C39700545AB4 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			productRefGroup = 41D53C762A4073BD00545AB4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -232,6 +325,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				41D53C852A4073C100545AB4 /* LaunchScreen.storyboard in Resources */,
+				41D53CB12A409C8200545AB4 /* GoogleService-Info.plist in Resources */,
 				41D53C822A4073C100545AB4 /* Assets.xcassets in Resources */,
 				41D53C802A4073BD00545AB4 /* Main.storyboard in Resources */,
 			);
@@ -258,9 +352,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41D53CB52A40A62900545AB4 /* HomeViewController.swift in Sources */,
+				41D53CCE2A40C94200545AB4 /* CurrencyListViewModel.swift in Sources */,
+				41D53CB82A40A74B00545AB4 /* File.swift in Sources */,
+				41D53CCB2A40C87A00545AB4 /* APIEndPoints.swift in Sources */,
+				41D53CC82A40C3ED00545AB4 /* APIManager.swift in Sources */,
+				41D53CBF2A40B76900545AB4 /* CurrencyList.swift in Sources */,
+				41D53CB32A409DC800545AB4 /* LoginViewController.swift in Sources */,
 				41D53C7D2A4073BD00545AB4 /* ViewController.swift in Sources */,
+				41D53CC12A40BDD100545AB4 /* Rates.swift in Sources */,
 				41D53C792A4073BD00545AB4 /* AppDelegate.swift in Sources */,
 				41D53C7B2A4073BD00545AB4 /* SceneDelegate.swift in Sources */,
+				41D53CC32A40C2E800545AB4 /* WebServiceManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,6 +705,69 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		41D53CA82A409A6500545AB4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+		41D53CAB2A409B5400545AB4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
+		41D53CB92A40B2A000545AB4 /* XCRemoteSwiftPackageReference "iOSDropDown" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jriosdev/iOSDropDown.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
+		41D53CC42A40C39700545AB4 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		41D53CA92A409A6500545AB4 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 41D53CA82A409A6500545AB4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		41D53CAC2A409B5500545AB4 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 41D53CAB2A409B5400545AB4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		41D53CAE2A409B5500545AB4 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 41D53CAB2A409B5400545AB4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		41D53CBA2A40B2A100545AB4 /* iOSDropDown */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 41D53CB92A40B2A000545AB4 /* XCRemoteSwiftPackageReference "iOSDropDown" */;
+			productName = iOSDropDown;
+		};
+		41D53CC52A40C39800545AB4 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 41D53CC42A40C39700545AB4 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 41D53C6D2A4073BD00545AB4 /* Project object */;
 }

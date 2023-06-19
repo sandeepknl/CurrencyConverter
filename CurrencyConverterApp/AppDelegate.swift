@@ -6,15 +6,37 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseCore
+import GoogleSignIn
+
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate,UINavigationBarDelegate {
 
 
+    var window: UIWindow?
 
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        FirebaseApp.configure()
+        redirectToHome()
         return true
+    }
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+      return GIDSignIn.sharedInstance.handle(url)
+    }
+    
+    func redirectToHome() {
+        
+        let mainStoryboard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+                 let homePage = mainStoryboard.instantiateViewController(withIdentifier: "homeViewController") as! HomeViewController
+        self.window?.rootViewController = homePage
+        self.window?.makeKeyAndVisible()
+//         self.window?.rootViewController.pushViewController(homePage, animated: false)
+        
     }
 
     // MARK: UISceneSession Lifecycle

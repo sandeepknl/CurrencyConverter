@@ -1,24 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="D5H-5D-NIx">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Login View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="loginViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="LoginViewController" customModule="CurrencyConverterApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1Xs-bg-3Jn" customClass="GIDSignInButton">
+                                <rect key="frame" x="71.666666666666686" y="423.66666666666669" width="250" height="30"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="EZT-fl-0pu"/>
+                                    <constraint firstAttribute="width" constant="250" id="cYf-YQ-vRk"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="googleSignInAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="v6p-Mk-M61"/>
+                                </connections>
+                            </view>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="1Xs-bg-3Jn" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="LSJ-ZV-gco"/>
+                            <constraint firstItem="1Xs-bg-3Jn" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="SGE-v7-OSN"/>
+                        </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="eR4-Vi-m4u"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="51" y="-2"/>
+        </scene>
+        <!--Home View Controller-->
+        <scene sceneID="hGx-L9-XKH">
+            <objects>
+                <viewController storyboardIdentifier="homeViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="jLD-o4-tSO" customClass="HomeViewController" customModule="CurrencyConverterApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="BtE-KG-noh">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose Home Currency" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fev-7o-ibo">
+                                <rect key="frame" x="102.00000000000001" y="84" width="189.33333333333337" height="21"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                <color key="textColor" red="0.094117647060000004" green="0.14901960780000001" blue="0.25490196079999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Home Currency" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="1D3-jL-1bI" customClass="DropDown" customModule="iOSDropDown">
+                                <rect key="frame" x="10" y="130" width="373" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="JQH-my-gbD"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose Conversion Currency" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wkj-Hv-J2h">
+                                <rect key="frame" x="71.666666666666686" y="230" width="250" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="250" id="s6w-dE-nhF"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                <color key="textColor" red="0.094117647060000004" green="0.14901960780000001" blue="0.25490196079999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Conversion Currency" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="MWE-Lq-UjI" customClass="DropDown" customModule="iOSDropDown">
+                                <rect key="frame" x="10" y="276" width="373" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="c4v-xY-qrn"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OBE-rx-2jn">
+                                <rect key="frame" x="71.666666666666686" y="356" width="250" height="35"/>
+                                <color key="backgroundColor" red="0.094117647060000004" green="0.14901960780000001" blue="0.25490196079999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="250" id="Qe4-NQ-mXc"/>
+                                    <constraint firstAttribute="height" constant="35" id="nPE-kd-MZA"/>
+                                </constraints>
+                                <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Convert"/>
+                                <connections>
+                                    <action selector="convertAction:" destination="jLD-o4-tSO" eventType="touchUpInside" id="mjf-Pn-buq"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oME-D1-0yQ">
+                                <rect key="frame" x="196.66666666666666" y="421" width="0.0" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="17r-3a-Y7J"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <color key="textColor" red="0.094117647060000004" green="0.14901960780000001" blue="0.25490196079999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KJd-YK-67p">
+                                <rect key="frame" x="288" y="753" width="75" height="35"/>
+                                <color key="backgroundColor" red="0.094117647060000004" green="0.14901960780000001" blue="0.25490196079999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="75" id="BEf-At-GhC"/>
+                                    <constraint firstAttribute="height" constant="35" id="l4C-j4-2El"/>
+                                </constraints>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="logout"/>
+                                <connections>
+                                    <action selector="logoutAction:" destination="jLD-o4-tSO" eventType="touchUpInside" id="MgI-Tl-uAw"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="CGd-eb-zZi"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="OBE-rx-2jn" firstAttribute="centerX" secondItem="CGd-eb-zZi" secondAttribute="centerX" id="20i-CG-bcU"/>
+                            <constraint firstItem="1D3-jL-1bI" firstAttribute="top" secondItem="fev-7o-ibo" secondAttribute="bottom" constant="25" id="2pP-eX-K88"/>
+                            <constraint firstItem="OBE-rx-2jn" firstAttribute="top" secondItem="MWE-Lq-UjI" secondAttribute="bottom" constant="30" id="AR2-hN-mKI"/>
+                            <constraint firstItem="oME-D1-0yQ" firstAttribute="centerX" secondItem="CGd-eb-zZi" secondAttribute="centerX" id="Gvd-Vz-4Ka"/>
+                            <constraint firstItem="1D3-jL-1bI" firstAttribute="centerX" secondItem="CGd-eb-zZi" secondAttribute="centerX" id="II7-kb-dlt"/>
+                            <constraint firstItem="CGd-eb-zZi" firstAttribute="trailing" secondItem="KJd-YK-67p" secondAttribute="trailing" constant="30" id="IiG-Bk-8zJ"/>
+                            <constraint firstItem="MWE-Lq-UjI" firstAttribute="top" secondItem="wkj-Hv-J2h" secondAttribute="bottom" constant="25" id="NS8-aF-WeZ"/>
+                            <constraint firstItem="CGd-eb-zZi" firstAttribute="trailing" secondItem="1D3-jL-1bI" secondAttribute="trailing" constant="10" id="Ojx-Dq-SCl"/>
+                            <constraint firstItem="CGd-eb-zZi" firstAttribute="trailing" secondItem="MWE-Lq-UjI" secondAttribute="trailing" constant="10" id="W3X-72-iOO"/>
+                            <constraint firstItem="oME-D1-0yQ" firstAttribute="top" secondItem="OBE-rx-2jn" secondAttribute="bottom" constant="30" id="a2w-Ol-MPk"/>
+                            <constraint firstItem="wkj-Hv-J2h" firstAttribute="top" secondItem="1D3-jL-1bI" secondAttribute="bottom" constant="50" id="aIy-3Z-HeC"/>
+                            <constraint firstItem="fev-7o-ibo" firstAttribute="centerX" secondItem="CGd-eb-zZi" secondAttribute="centerX" id="agY-my-U9h"/>
+                            <constraint firstItem="fev-7o-ibo" firstAttribute="top" secondItem="CGd-eb-zZi" secondAttribute="top" constant="25" id="bZ5-Md-Hs2"/>
+                            <constraint firstItem="MWE-Lq-UjI" firstAttribute="centerX" secondItem="CGd-eb-zZi" secondAttribute="centerX" id="djU-dY-G1r"/>
+                            <constraint firstItem="wkj-Hv-J2h" firstAttribute="centerX" secondItem="CGd-eb-zZi" secondAttribute="centerX" id="fTM-QQ-nal"/>
+                            <constraint firstItem="CGd-eb-zZi" firstAttribute="bottom" secondItem="KJd-YK-67p" secondAttribute="bottom" constant="30" id="fgg-EW-Ycs"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="conversionCurrencyDropDown" destination="MWE-Lq-UjI" id="eHq-Dr-OtZ"/>
+                        <outlet property="convertedLabel" destination="oME-D1-0yQ" id="cxa-4u-Enr"/>
+                        <outlet property="dropDown" destination="1D3-jL-1bI" id="Go2-oh-9Wk"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="g7N-1u-z2l" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="865" y="-2"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Rx7-8J-Yta">
+            <objects>
+                <navigationController storyboardIdentifier="NavHome" automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="D5H-5D-NIx" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <nil key="simulatedBottomBarMetrics"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="7gC-nt-yty">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="GB7-va-bej"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Yhf-6e-7JM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1047" y="-61"/>
         </scene>
     </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

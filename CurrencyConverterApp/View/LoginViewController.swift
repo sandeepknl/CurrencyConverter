@@ -38,24 +38,26 @@ class LoginViewController: UIViewController {
 
           guard let user = result?.user,
             let idToken = user.idToken?.tokenString
+                    
           else {
-              print("success")
-            return
+              return
           }
 
           let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                          accessToken: user.accessToken.tokenString)
-          // ...
-            
-            UserDefaults.standard.set(user.profile?.email, forKey: Constants.Data.email)
-            
-//            print(user.profile?.email)
-            
-            
-            
+            Auth.auth().signIn(with: credential) { result, error in
+
+                
+                let homeViewController = self.storyboard?.instantiateViewController(withIdentifier: Constants.ViewController.home) as! HomeViewController
+                self.navigationController?.pushViewController(homeViewController, animated: true)
+                
+                
+            }
             
             
         }
+        
+        
     }
     
 

@@ -14,9 +14,9 @@ class APIManager{
     
     
     // To get the user current location
-    func getCurrency(completion: @escaping WebserviceHandler){
+    func getCurrency(parameters: Parameters, completion: @escaping WebserviceHandler){
         
-        let url:String = ""
+        let url:String = APIEndpoints.currencyList
         let method:HTTPMethod = .get
         let params: Parameters = [:]
         
