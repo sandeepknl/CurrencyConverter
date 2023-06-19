@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UINavigationBarDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
-        redirectToHome()
+        
         return true
     }
     func application(_ app: UIApplication,
@@ -29,15 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UINavigationBarDelegate {
       return GIDSignIn.sharedInstance.handle(url)
     }
     
-    func redirectToHome() {
-        
-        let mainStoryboard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                 let homePage = mainStoryboard.instantiateViewController(withIdentifier: "homeViewController") as! HomeViewController
-        self.window?.rootViewController = homePage
-        self.window?.makeKeyAndVisible()
-//         self.window?.rootViewController.pushViewController(homePage, animated: false)
-        
-    }
+   
 
     // MARK: UISceneSession Lifecycle
 
