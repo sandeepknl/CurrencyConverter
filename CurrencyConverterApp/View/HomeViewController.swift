@@ -78,9 +78,6 @@ class HomeViewController: UIViewController, UITextFieldDelegate {
         print(conversionValue)
         convertedLabel.text = "1 \(self.dropDown.text ?? "") = \(conversionValue) \(self.conversionCurrencyDropDown.text ?? "")"
         
-        
-        
-        
     }
     
     @IBAction func logoutAction(_ sender: Any) {

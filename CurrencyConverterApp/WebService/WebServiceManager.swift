@@ -75,3 +75,33 @@ class WebServiceManager{
         }
     
 }
+
+
+
+
+//    func request(){
+//
+//        let url = URL(string: "api.myplatform.com/endpoint")!
+//        URLSession.shared.dataTask(with: url) { (data, response, error) in
+//          if error == nil {
+//            guard let data = data else { return }
+//            do {
+//              let model = try JSONDecoder().decode(User.self, from: data)
+//              // start using your model here
+//             } catch let error {
+//                //error handling
+//             }
+//           }
+//        }.resume()
+//
+//
+//    }
+
+
+//let urlRequest = buildURLRequest(hostname: "api.myplatform.com", path: "endpoint", parameters: ["name":"yalcin"], body: [:], method: "PUT")
+//URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
+//  // response handling
+//}.resume()
+
+
+//https://blog.appnation.co/how-to-handle-json-responses-using-jsondecoder-in-swift-the-most-efficient-way-96315b71ed6d

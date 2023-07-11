@@ -9,7 +9,7 @@ import Foundation
 
 class CurrencyConverterModel : Decodable {
     
-    @objc dynamic var rates : [String:Double] = [:]
+    @objc dynamic var rates : [String:Double]?
     @objc dynamic var base : String?
    
     
