@@ -1,0 +1,64 @@
+import Mapbox
+
+class ViewController: UIViewController, MGLMapViewDelegate {
+    var mapView: MGLMapView!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        mapView = MGLMapView(frame: view.bounds)
+        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        mapView.delegate = self
+        mapView.styleURL = MGLStyle.satelliteStyleURL
+        view.addSubview(mapView)
+        
+        addPolygons()
+    }
+
+    func addPolygons() {
+        let coordinates1 = [
+            CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
+            CLLocationCoordinate2D(latitude: 37.7849, longitude: -122.4194),
+            CLLocationCoordinate2D(latitude: 37.7849, longitude: -122.4094),
+            CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4094)
+        ]
+        let polygon1 = MGLPolygonFeature(coordinates: coordinates1, count: UInt(coordinates1.count))
+        polygon1.attributes = ["name": "Polygon 1"]
+
+        let coordinates2 = [
+            CLLocationCoordinate2D(latitude: 37.7649, longitude: -122.4294),
+            CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4294),
+            CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
+            CLLocationCoordinate2D(latitude: 37.7649, longitude: -122.4194)
+        ]
+        let polygon2 = MGLPolygonFeature(coordinates: coordinates2, count: UInt(coordinates2.count))
+        polygon2.attributes = ["name": "Polygon 2"]
+
+        let shapeCollection = MGLShapeCollectionFeature(shapes: [polygon1, polygon2])
+        let source = MGLShapeSource(identifier: "polygons", shape: shapeCollection, options: nil)
+        
+        mapView.style?.addSource(source)
+
+        let layer = MGLFillStyleLayer(identifier: "polygonLayer", source: source)
+        layer.fillColor = NSExpression(forConstantValue: UIColor.blue.withAlphaComponent(0.5))
+        mapView.style?.addLayer(layer)
+        
+        addPolygonLabels()
+    }
+
+    func addPolygonLabels() {
+        guard let style = mapView.style else { return }
+
+        let source = style.source(withIdentifier: "polygons") as! MGLShapeSource
+
+        let symbolLayer = MGLSymbolStyleLayer(identifier: "polygonLabels", source: source)
+        symbolLayer.text = NSExpression(forKeyPath: "name")
+        symbolLayer.textFontSize = NSExpression(forConstantValue: 14)
+        symbolLayer.textHaloColor = NSExpression(forConstantValue: UIColor.white)
+        symbolLayer.textHaloWidth = NSExpression(forConstantValue: 1.0)
+        symbolLayer.textColor = NSExpression(forConstantValue: UIColor.black)
+        symbolLayer.textAnchor = NSExpression(forConstantValue: "center")
+        
+        style.addLayer(symbolLayer)
+    }
+}
