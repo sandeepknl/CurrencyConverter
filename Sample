@@ -48,16 +48,20 @@ func convertCoreDataModelToJSON(coreDataArray: [[String: Any]]) -> String? {
     let template_id = String(firstData["templateId"] as? Int ?? 0)
     let date = firstData["date"] as? String ?? ""
 
-    // Group entries by plotId
+  // Group entries by plotId
     var plotInfoDictionary: [String: PlotInfo] = [:]
 
     for coreData in coreDataArray {
         let plot_id = String(coreData["plotId"] as? Int ?? 0)
         let branch = coreData["branch"] as? Int ?? 0
         let value = coreData["value"] as? Int ?? 0
-        let plantNo = Int(coreData["plant"] as? String?.split(separator: " ").last ?? "0") ?? 0
+        let plant = coreData["plant"] as? String ?? ""
+        
+        // Extract plant number by removing the prefix "Plant " and converting to Int
+        let plantNoString = plant.replacingOccurrences(of: "Plant ", with: "")
+        let plantNo = Int(plantNoString) ?? 0
 
-        let plant = Plant(id: nil, plant_no: plantNo, branch: branch, branch_type: 1, p1_value: 0, p2_value: value, p3_value: 0)
+        let plantObject = Plant(id: nil, plant_no: plantNo, branch: branch, branch_type: 1, p1_value: 0, p2_value: value, p3_value: 0)
 
         if plotInfoDictionary[plot_id] == nil {
             // Create a new PlotInfo entry if it doesn't exist
