@@ -1,3 +1,4 @@
+
 import Foundation
 
 struct Attribute: Codable {
@@ -25,7 +26,7 @@ struct PlotInfo: Codable {
     var plants: [Plant]
 }
 
-struct CollectData: Codablei {
+struct CollectData: Codable {
     var sampling_date: String
     var sub_sample_count: String
     var plot_info: [PlotInfo]
@@ -46,24 +47,37 @@ func convertCoreDataModelToJSON(coreDataArray: [[String: Any]]) -> String? {
     let field_id = String(firstData["fieldId"] as? Int ?? 0)
     let template_id = String(firstData["templateId"] as? Int ?? 0)
     let date = firstData["date"] as? String ?? ""
-    let plot_id = String(firstData["plotId"] as? Int ?? 0)
 
-    let attributes = [
-        Attribute(plot_data_id: nil, attribute_id: "72", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
-        Attribute(plot_data_id: nil, attribute_id: "73", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
-        Attribute(plot_data_id: nil, attribute_id: "74", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
-        Attribute(plot_data_id: nil, attribute_id: "75", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil)
-    ]
+    // Group entries by plotId
+    var plotInfoDictionary: [String: PlotInfo] = [:]
 
-    var plants: [Plant] = []
-    for (index, coreData) in coreDataArray.enumerated() {
+    for coreData in coreDataArray {
+        let plot_id = String(coreData["plotId"] as? Int ?? 0)
         let branch = coreData["branch"] as? Int ?? 0
         let value = coreData["value"] as? Int ?? 0
-        plants.append(Plant(id: nil, plant_no: index + 1, branch: branch, branch_type: 1, p1_value: 0, p2_value: value, p3_value: 0))
+        let plantNo = Int(coreData["plant"] as? String?.split(separator: " ").last ?? "0") ?? 0
+
+        let plant = Plant(id: nil, plant_no: plantNo, branch: branch, branch_type: 1, p1_value: 0, p2_value: value, p3_value: 0)
+
+        if plotInfoDictionary[plot_id] == nil {
+            // Create a new PlotInfo entry if it doesn't exist
+
+            let attributes = [
+                Attribute(plot_data_id: nil, attribute_id: "72", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
+                Attribute(plot_data_id: nil, attribute_id: "73", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
+                Attribute(plot_data_id: nil, attribute_id: "74", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
+                Attribute(plot_data_id: nil, attribute_id: "75", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil)
+            ]
+            plotInfoDictionary[plot_id] = PlotInfo(plot_id: plot_id, sub_plot: "", attributes: attributes, plants: [])
+        }
+
+        // Append the plant to the existing PlotInfo entry
+        plotInfoDictionary[plot_id]?.plants.append(plant)
     }
 
-    let plotInfo = PlotInfo(plot_id: plot_id, sub_plot: "", attributes: attributes, plants: plants)
-    let collectData = CollectData(sampling_date: date, sub_sample_count: "", plot_info: [plotInfo])
+    // Convert dictionary to array
+    let plotInfoArray = Array(plotInfoDictionary.values)
+    let collectData = CollectData(sampling_date: date, sub_sample_count: "", plot_info: plotInfoArray)
     let data = Data(template_id: template_id, collect_data: [collectData])
 
     let fieldData = FieldData(field_id: field_id, data: [data])
@@ -117,7 +131,7 @@ let coreDataModels: [[String: Any]] = [
         "plantDistanceRowUnit": nil,
         "plants": nil,
         "plotDataId": "Branch",
-        "plotId": 61,
+        "plotId": 62,
         "templateId": 10,
         "uploadStatus": "0.0",
         "userId": 1,
@@ -134,7 +148,7 @@ let coreDataModels: [[String: Any]] = [
         "distanceBetweenRowUnit": nil,
         "fieldId": 91,
         "numberOfPlants": nil,
-        "plant": "Plant 2",
+        "plant": "Plant 5",
         "plantDistanceRow": nil,
         "plantDistanceRowUnit": nil,
         "plants": nil,
@@ -161,7 +175,7 @@ let coreDataModels: [[String: Any]] = [
         "plantDistanceRowUnit": nil,
         "plants": nil,
         "plotDataId": "Branch",
-        "plotId": 61,
+        "plotId": 62,
         "templateId": 10,
         "uploadStatus": "0.0",
         "userId": 1,
