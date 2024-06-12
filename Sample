@@ -41,14 +41,14 @@ struct FieldData: Codable {
     var field_id: String
     var data: [Data]
 }
-func convertCoreDataModelToJSON(coreDataArray: [[String: Any]]) -> String? {
+func convertCoreDataModelToDictionary(coreDataArray: [[String: Any]]) -> [String: Any]? {
     guard let firstData = coreDataArray.first else { return nil }
     let field_id = String(firstData["fieldId"] as? Int ?? 0)
     let template_id = String(firstData["templateId"] as? Int ?? 0)
     let date = firstData["date"] as? String ?? ""
 
     // Group entries by plotId
-    var plotInfoDictionary: [String: PlotInfo] = [:]
+    var plotInfoDictionary: [String: [String: Any]] = [:]
 
     for coreData in coreDataArray {
         let plot_id = String(coreData["plotId"] as? Int ?? 0)
@@ -60,38 +60,58 @@ func convertCoreDataModelToJSON(coreDataArray: [[String: Any]]) -> String? {
         let plantNoString = plant.replacingOccurrences(of: "Plant ", with: "")
         let plantNo = Int(plantNoString) ?? 0
 
-        let plantObject = Plant(id: nil, plant_no: plantNo, branch: branch, branch_type: 1, p1_value: 0, p2_value: value, p3_value: 0)
+        let plantObject: [String: Any] = [
+            "id": nil as Any?,
+            "plant_no": plantNo,
+            "branch": branch,
+            "branch_type": 1,
+            "p1_value": 0,
+            "p2_value": value,
+            "p3_value": 0
+        ]
 
         if plotInfoDictionary[plot_id] == nil {
             // Create a new PlotInfo entry if it doesn't exist
-            let attributes = [
-                Attribute(plot_data_id: nil, attribute_id: "72", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
-                Attribute(plot_data_id: nil, attribute_id: "73", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
-                Attribute(plot_data_id: nil, attribute_id: "74", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
-                Attribute(plot_data_id: nil, attribute_id: "75", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil)
+            let attributes: [[String: Any]] = [
+                ["plot_data_id": nil as Any?, "attribute_id": "72", "attribute_unit1_id": nil as Any?, "attribute_unit2_id": nil as Any?, "quantity": nil as Any?],
+                ["plot_data_id": nil as Any?, "attribute_id": "73", "attribute_unit1_id": nil as Any?, "attribute_unit2_id": nil as Any?, "quantity": nil as Any?],
+                ["plot_data_id": nil as Any?, "attribute_id": "74", "attribute_unit1_id": nil as Any?, "attribute_unit2_id": nil as Any?, "quantity": nil as Any?],
+                ["plot_data_id": nil as Any?, "attribute_id": "75", "attribute_unit1_id": nil as Any?, "attribute_unit2_id": nil as Any?, "quantity": nil as Any?]
             ]
-            plotInfoDictionary[plot_id] = PlotInfo(plot_id: plot_id, sub_plot: "", attributes: attributes, plants: [])
+            plotInfoDictionary[plot_id] = [
+                "plot_id": plot_id,
+                "sub_plot": "",
+                "attributes": attributes,
+                "plants": [plantObject]
+            ]
+        } else {
+            // Append the plant to the existing PlotInfo entry
+            var existingPlotInfo = plotInfoDictionary[plot_id]
+            var existingPlants = existingPlotInfo?["plants"] as? [[String: Any]] ?? []
+            existingPlants.append(plantObject)
+            existingPlotInfo?["plants"] = existingPlants
+            plotInfoDictionary[plot_id] = existingPlotInfo!
         }
-
-        // Append the plant to the existing PlotInfo entry
-        plotInfoDictionary[plot_id]?.plants.append(plantObject)
     }
 
     // Convert dictionary to array
     let plotInfoArray = Array(plotInfoDictionary.values)
-    let collectData = CollectData(sampling_date: date, sub_sample_count: "", plot_info: plotInfoArray)
-    let data = Data(template_id: template_id, collect_data: [collectData])
+    let collectData: [String: Any] = [
+        "sampling_date": date,
+        "sub_sample_count": "",
+        "plot_info": plotInfoArray
+    ]
+    let data: [String: Any] = [
+        "template_id": template_id,
+        "collect_data": [collectData]
+    ]
+    let fieldData: [String: Any] = [
+        "field_id": field_id,
+        "data": [data]
+    ]
 
-    let fieldData = FieldData(field_id: field_id, data: [data])
-
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = .prettyPrinted
-
-    if let jsonData = try? encoder.encode(fieldData) {
-        return String(data: jsonData, encoding: .utf8)
-    }
-
-    return nil
+    return fieldData
+}
 }
 
 let coreDataModels: [[String: Any]] = [
