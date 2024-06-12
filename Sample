@@ -41,14 +41,13 @@ struct FieldData: Codable {
     var field_id: String
     var data: [Data]
 }
-
 func convertCoreDataModelToJSON(coreDataArray: [[String: Any]]) -> String? {
     guard let firstData = coreDataArray.first else { return nil }
     let field_id = String(firstData["fieldId"] as? Int ?? 0)
     let template_id = String(firstData["templateId"] as? Int ?? 0)
     let date = firstData["date"] as? String ?? ""
 
-  // Group entries by plotId
+    // Group entries by plotId
     var plotInfoDictionary: [String: PlotInfo] = [:]
 
     for coreData in coreDataArray {
@@ -65,7 +64,6 @@ func convertCoreDataModelToJSON(coreDataArray: [[String: Any]]) -> String? {
 
         if plotInfoDictionary[plot_id] == nil {
             // Create a new PlotInfo entry if it doesn't exist
-
             let attributes = [
                 Attribute(plot_data_id: nil, attribute_id: "72", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
                 Attribute(plot_data_id: nil, attribute_id: "73", attribute_unit1_id: nil, attribute_unit2_id: nil, quantity: nil),
@@ -76,7 +74,7 @@ func convertCoreDataModelToJSON(coreDataArray: [[String: Any]]) -> String? {
         }
 
         // Append the plant to the existing PlotInfo entry
-        plotInfoDictionary[plot_id]?.plants.append(plant)
+        plotInfoDictionary[plot_id]?.plants.append(plantObject)
     }
 
     // Convert dictionary to array
