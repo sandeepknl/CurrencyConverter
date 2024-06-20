@@ -1,4 +1,11 @@
 import Foundation
+
+struct WeatherForecast: Codable {
+    let location: String
+    let temperature: [String: Double]
+    let weatherDescription: [String: String]
+    // Define other relevant fields based on the API response
+}import Foundation
 import Alamofire
 
 class NetworkManager {
