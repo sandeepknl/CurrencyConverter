@@ -1,4 +1,111 @@
+import Foundation
+import Alamofire
 
+class NetworkManager {
+    static let shared = NetworkManager()
+    private init() {}
+
+    let apiKey = "YOUR_API_KEY"
+    let baseURL = "https://my.meteoblue.com/api/v1/forecast/"
+
+    func getWeatherForecast(for location: String, completion: @escaping (Result<WeatherForecast, Error>) -> Void) {
+        let endpoint = "\(baseURL)\(location)"
+        let parameters: [String: Any] = ["apikey": apiKey]
+        
+        AF.request(endpoint, parameters: parameters).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decoder = JSONDecoder()
+                    let forecast = try decoder.decode(WeatherForecast.self, from: data)
+                    completion(.success(forecast))
+                } catch {
+                    completion(.failure(error))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+}
+nt 1",
+        "plantDistanceRow": nil,
+        "plantDistanceRowUnit": nil,
+        "plants": nil,
+        "plotDataId": "Branch",
+        "plotId": 61,
+        "templateId": 10,
+        "uploadStatus": "0.0",
+        "userId": 1,
+        "value": 7777
+    ],
+    [
+        "attributeId": "Branch",
+        "averagebollWeight": nil,
+        "averagebollWeightUnit": nil,
+        "branch": 21,
+        "captureTime": "1718187866.480301",
+        "date": "2024-06-12",
+        "distanceBetweenRow": nil,
+        "distanceBetweenRowUnit": nil,
+        "fieldId": 91,
+        "numberOfPlants": nil,
+        "plant": "Plant 1",
+        "plantDistanceRow": nil,
+        "plantDistanceRowUnit": nil,
+        "plants": nil,
+        "plotDataId": "Branch",
+        "plotId": 62,
+        "templateId": 10,
+        "uploadStatus": "0.0",
+        "userId": 1,
+        "value": 7
+    ],
+    [
+        "attributeId": "Branch",
+        "averagebollWeight": nil,
+        "averagebollWeightUnit": nil,
+        "branch": 1,
+        "captureTime": "1718187866.480301",
+        "date": "2024-06-12",
+        "distanceBetweenRow": nil,
+        "distanceBetweenRowUnit": nil,
+        "fieldId": 91,
+        "numberOfPlants": nil,
+        "plant": "Plant 5",
+        "plantDistanceRow": nil,
+        "plantDistanceRowUnit": nil,
+        "plants": nil,
+        "plotDataId": "Branch",
+        "plotId": 61,
+        "templateId": 10,
+        "uploadStatus": "0.0",
+        "userId": 1,
+        "value": 98
+    ],
+    [
+        "attributeId": "Branch",
+        "averagebollWeight": nil,
+        "averagebollWeightUnit": nil,
+        "branch": 4,
+        "captureTime": "1718187866.480301",
+        "date": "2024-06-12",
+        "distanceBetweenRow": nil,
+        "distanceBetweenRowUnit": nil,
+        "fieldId": 91,
+        "numberOfPlants": nil,
+        "plant": "Plant 3",
+        "plantDistanceRow": nil,
+        "plantDistanceRowUnit": nil,
+        "plants": nil,
+        "plotDataId": "Branch",
+        "plotId": 62,
+        "templateId": 10,
+        "uploadStatus": "0.0",
+        "userId": 1,
+        "value": 111
+    ]
+]
 import Foundation
 
 struct Attribute: Codable {
