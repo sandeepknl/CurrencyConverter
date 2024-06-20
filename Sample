@@ -208,3 +208,21 @@ let coreDataModels: [[String: Any]] = [
 if let jsonString = convertCoreDataModelToJSON(coreDataArray: coreDataModels) {
     print(jsonString)
 }
+import UIKit
+
+class WeatherViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        NetworkManager.shared.getWeatherForecast(for: "Zurich") { result in
+            switch result {
+            case .success(let forecast):
+                print("Weather Forecast: \(forecast)")
+                // Update your UI with the forecast data
+            case .failure(let error):
+                print("Error fetching weather forecast: \(error)")
+                // Handle the error (e.g., show an alert to the user)
+            }
+        }
+    }
+}
