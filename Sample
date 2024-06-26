@@ -1,3 +1,58 @@
+import UIKit
+
+class ViewController: UIViewController, UITextViewDelegate {
+    let textView = UITextView()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Add the UITextView to your view
+        textView.delegate = self
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.backgroundColor = .lightGray
+        textView.font = UIFont.systemFont(ofSize: 18)
+        self.view.addSubview(textView)
+        
+        // Set constraints for the UITextView
+        NSLayoutConstraint.activate([
+            textView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            textView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+            textView.widthAnchor.constraint(equalToConstant: 200),
+            textView.heightAnchor.constraint(equalToConstant: 200)
+        ])
+        
+        // Initially center the cursor
+        centerCursor()
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        centerCursor()
+    }
+
+    func centerCursor() {
+        guard let textRange = textView.selectedTextRange else { return }
+
+        // Calculate the caret position
+        let caretRect = textView.caretRect(for: textRange.start)
+        
+        // Calculate the new content offset
+        let topOffset = (textView.bounds.size.height - caretRect.size.height) / 2.0 - caretRect.origin.y
+        let leftOffset = (textView.bounds.size.width - caretRect.size.width) / 2.0 - caretRect.origin.x
+        
+        // Apply the content inset
+        textView.contentInset = UIEdgeInsets(top: max(0, topOffset), left: max(0, leftOffset), bottom: 0, right: 0)
+    }
+}
+
+
+
+
+
+
+
+
+
+
 Cannot assign value of type '(Index, String, DropDownCell) -> Void' (aka '(Int, String, DropDownCell) -> ()') to type 'CellConfigurationClosure?' (aka 'Optional<(Int, String, DropDownCell) -> ()>import CoreData
 
 // Assume we have a managed object context 'context'
@@ -20,7 +75,3 @@ do {
     // 'results' is now sorted based on 'orderString' as numerical values
     for result in results {
         print(result.orderString ?? "")
-    }
-} catch {
-    print("Failed to fetch: \(error)")
-}
