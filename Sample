@@ -1,77 +1,59 @@
-import UIKit
-
-class ViewController: UIViewController, UITextViewDelegate {
-    let textView = UITextView()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // Add the UITextView to your view
-        textView.delegate = self
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.backgroundColor = .lightGray
-        textView.font = UIFont.systemFont(ofSize: 18)
-        self.view.addSubview(textView)
-        
-        // Set constraints for the UITextView
-        NSLayoutConstraint.activate([
-            textView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            textView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
-            textView.widthAnchor.constraint(equalToConstant: 200),
-            textView.heightAnchor.constraint(equalToConstant: 200)
-        ])
-        
-        // Initially center the cursor
-        centerCursor()
-    }
-    
-    func textViewDidChange(_ textView: UITextView) {
-        centerCursor()
-    }
-
-    func centerCursor() {
-        guard let textRange = textView.selectedTextRange else { return }
-
-        // Calculate the caret position
-        let caretRect = textView.caretRect(for: textRange.start)
-        
-        // Calculate the new content offset
-        let topOffset = (textView.bounds.size.height - caretRect.size.height) / 2.0 - caretRect.origin.y
-        let leftOffset = (textView.bounds.size.width - caretRect.size.width) / 2.0 - caretRect.origin.x
-        
-        // Apply the content inset
-        textView.contentInset = UIEdgeInsets(top: max(0, topOffset), left: max(0, leftOffset), bottom: 0, right: 0)
-    }
-}
-
-
-
-
-
-
-
-
-
-
-Cannot assign value of type '(Index, String, DropDownCell) -> Void' (aka '(Int, String, DropDownCell) -> ()') to type 'CellConfigurationClosure?' (aka 'Optional<(Int, String, DropDownCell) -> ()>import CoreData
-
-// Assume we have a managed object context 'context'
-let fetchRequest = NSFetchRequest<MyEntity>(entityName: "MyEntity")
-
-// Create a sort descriptor based on the 'orderString' attribute
-let sortDescriptor = NSSortDescriptor(key: "orderString", ascending: true, comparator: { (str1, str2) -> ComparisonResult in
-    guard let num1 = Int(str1), let num2 = Int(str2) else {
-        return str1.compare(str2)
-    }
-    return num1.compare(num2)
-})
-
-// Set the sort descriptor to the fetch request
-fetchRequest.sortDescriptors = [sortDescriptor]
-
-do {
-    // Fetch the data from the context
-    let results = try context.fetch(fetchRequest)
-    // 'results' is now sorted based on 'orderString' as numerical values
-    for result in results {
-        print(result.orderString ?? "")
+let dataCollectionValue = BiologicalDataCollectionManager().readCaptureDataForSync()
+        var field : String?
+            var modelArray : [BiologicalCaptureDataModel] = []
+        dataCollectionValue.forEach({values in
+//            values.uploadStatus = "\(UploadStatus.eUploadPending.rawValue)"
+                let dataObject : BiologicalCaptureData = values
+                let model = BiologicalCaptureDataModel(coreDataObject: dataObject)
+            if modelArray.count == 0{
+                modelArray.append(model)
+            }
+            if model.fieldId == modelArray.last?.fieldId{
+                field = model.fieldId
+                if dataCollectionValue.count > 1 {
+                    modelArray.append(model)
+                }
+                let fieldData = BiologicalDataCollectionManager().readCaptureDataForSyncRequest(fieldId: model.fieldId)
+                
+                if modelArray.count == fieldData?.count{
+                    let convertedData = convertToDesiredFormat(data: modelArray, field: field ?? "")
+                    print(convertedData)
+                    DatacollectionWebservice().captureDataSyncRequest(convertedData) { data,error in
+                        let decoder = JSONDecoder()
+                        if data != nil {
+                            do {
+                                let model = try decoder.decode(MetaData.self, from: (data!))
+                                print(model.message)
+                                if model.status{
+                                    
+                                    let fieldData = DatabaseBiologicalField().readBiologicalFieldData(fieldId: field ?? "", tempId: "")
+                                    let date = Date().stringFromDate(format: DateFormatters.YYYYHMMHDDHHHHMMHSS) ?? ""
+                                    fieldData?.saveLocalCaptureDate(value: date)
+                                    
+                                    values.uploadStatus = "\(UploadStatus.eLocalUpload.rawValue)"
+                                    NotificationCenter.default.post(name: NSNotification.Name("imageSync"), object: BioSyncedItems.data,userInfo: nil)
+                                    
+                                    
+                                }
+                                else{
+                                    values.uploadStatus = "\(UploadStatus.eLocal.rawValue)"
+                                }
+                                
+                            }
+                            catch {
+                                print(error.localizedDescription)
+                                
+                            }
+                        }
+                    }
+                    
+                }
+                
+            }
+            else{
+                modelArray.removeAll()
+            }
+                
+            
+            
+            })
