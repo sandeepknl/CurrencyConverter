@@ -1,59 +1,22 @@
-let dataCollectionValue = BiologicalDataCollectionManager().readCaptureDataForSync()
-        var field : String?
-            var modelArray : [BiologicalCaptureDataModel] = []
-        dataCollectionValue.forEach({values in
-//            values.uploadStatus = "\(UploadStatus.eUploadPending.rawValue)"
-                let dataObject : BiologicalCaptureData = values
-                let model = BiologicalCaptureDataModel(coreDataObject: dataObject)
-            if modelArray.count == 0{
-                modelArray.append(model)
-            }
-            if model.fieldId == modelArray.last?.fieldId{
-                field = model.fieldId
-                if dataCollectionValue.count > 1 {
-                    modelArray.append(model)
-                }
-                let fieldData = BiologicalDataCollectionManager().readCaptureDataForSyncRequest(fieldId: model.fieldId)
-                
-                if modelArray.count == fieldData?.count{
-                    let convertedData = convertToDesiredFormat(data: modelArray, field: field ?? "")
-                    print(convertedData)
-                    DatacollectionWebservice().captureDataSyncRequest(convertedData) { data,error in
-                        let decoder = JSONDecoder()
-                        if data != nil {
-                            do {
-                                let model = try decoder.decode(MetaData.self, from: (data!))
-                                print(model.message)
-                                if model.status{
-                                    
-                                    let fieldData = DatabaseBiologicalField().readBiologicalFieldData(fieldId: field ?? "", tempId: "")
-                                    let date = Date().stringFromDate(format: DateFormatters.YYYYHMMHDDHHHHMMHSS) ?? ""
-                                    fieldData?.saveLocalCaptureDate(value: date)
-                                    
-                                    values.uploadStatus = "\(UploadStatus.eLocalUpload.rawValue)"
-                                    NotificationCenter.default.post(name: NSNotification.Name("imageSync"), object: BioSyncedItems.data,userInfo: nil)
-                                    
-                                    
-                                }
-                                else{
-                                    values.uploadStatus = "\(UploadStatus.eLocal.rawValue)"
-                                }
-                                
-                            }
-                            catch {
-                                print(error.localizedDescription)
-                                
-                            }
-                        }
-                    }
-                    
-                }
-                
-            }
-            else{
-                modelArray.removeAll()
-            }
-                
-            
-            
-            })
+import Foundation
+
+// Specify the path to your plist file
+let filePath = "/path/to/your/file.plist"
+
+// Convert the file path to a URL
+if let url = URL(string: filePath) {
+    do {
+        // Read the plist file data
+        let data = try Data(contentsOf: url)
+        
+        // Convert the plist data to a dictionary
+        if let plistDict = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] {
+            // Use your dictionary here
+            print(plistDict)
+        }
+    } catch {
+        print("Error reading or parsing plist: \(error)")
+    }
+} else {
+    print("Invalid file path.")
+}
