@@ -1,25 +1,34 @@
 import Foundation
 
-// Get the document directory path
-if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-    
-    // Append the plist file name to the directory path
-    let fileURL = documentDirectory.appendingPathComponent("YourFileName.plist")
-    
-    do {
-        // Read the plist file data
-        let data = try Data(contentsOf: fileURL)
-        
-        // Convert the plist data to a dictionary
-        if let plistDict = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] {
-            // Use your dictionary here
-            print(plistDict)
-        } else {
-            print("The plist data is not a valid dictionary.")
+func loadPlist() -> [String: [String: String]]? {
+    if let plistPath = Bundle.main.path(forResource: "yourPlistName", ofType: "plist") {
+        do {
+            let data = try Data(contentsOf: URL(fileURLWithPath: plistPath))
+            if let plist = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] {
+                var result: [String: [String: String]] = [:]
+                for (key, value) in plist {
+                    if let innerDict = value as? [String: Any] {
+                        var convertedInnerDict: [String: String] = [:]
+                        for (innerKey, innerValue) in innerDict {
+                            if let stringValue = innerValue as? String {
+                                convertedInnerDict[innerKey] = stringValue
+                            }
+                        }
+                        result[key] = convertedInnerDict
+                    }
+                }
+                return result
+            }
+        } catch {
+            print("Error loading plist: \(error)")
         }
-    } catch {
-        print("Error reading or parsing plist: \(error)")
     }
+    return nil
+}
+
+// Usage:
+if let plistDict = loadPlist() {
+    print(plistDict)
 } else {
-    print("Could not find the document directory.")
+    print("Failed to load plist.")
 }
