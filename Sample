@@ -1,22 +1,25 @@
 import Foundation
 
-// Specify the path to your plist file
-let filePath = "/path/to/your/file.plist"
-
-// Convert the file path to a URL
-if let url = URL(string: filePath) {
+// Get the document directory path
+if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+    
+    // Append the plist file name to the directory path
+    let fileURL = documentDirectory.appendingPathComponent("YourFileName.plist")
+    
     do {
         // Read the plist file data
-        let data = try Data(contentsOf: url)
+        let data = try Data(contentsOf: fileURL)
         
         // Convert the plist data to a dictionary
         if let plistDict = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] {
             // Use your dictionary here
             print(plistDict)
+        } else {
+            print("The plist data is not a valid dictionary.")
         }
     } catch {
         print("Error reading or parsing plist: \(error)")
     }
 } else {
-    print("Invalid file path.")
+    print("Could not find the document directory.")
 }
