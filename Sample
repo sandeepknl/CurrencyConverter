@@ -1,34 +1,27 @@
-import Foundation
+import ActivityKit
+import CloudKit
 
-func loadPlist() -> [String: [String: String]]? {
-    if let plistPath = Bundle.main.path(forResource: "yourPlistName", ofType: "plist") {
-        do {
-            let data = try Data(contentsOf: URL(fileURLWithPath: plistPath))
-            if let plist = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] {
-                var result: [String: [String: String]] = [:]
-                for (key, value) in plist {
-                    if let innerDict = value as? [String: Any] {
-                        var convertedInnerDict: [String: String] = [:]
-                        for (innerKey, innerValue) in innerDict {
-                            if let stringValue = innerValue as? String {
-                                convertedInnerDict[innerKey] = stringValue
-                            }
-                        }
-                        result[key] = convertedInnerDict
-                    }
-                }
-                return result
-            }
-        } catch {
-            print("Error loading plist: \(error)")
+var currentActivity: Activity<YourActivityAttributes>?
+
+func fetchRecordAndUpdateActivity(recordID: CKRecord.ID) {
+    let database = CKContainer.default().publicCloudDatabase
+    
+    database.fetch(withRecordID: recordID) { record, error in
+        if let record = record, error == nil {
+            // Assume the record has a field named "name" that you want to display
+            let updatedName = record["name"] as? String ?? "Default Name"
+            updateLiveActivity(name: updatedName)
+        } else {
+            print("Error fetching record: \(error?.localizedDescription ?? "Unknown error")")
         }
     }
-    return nil
 }
 
-// Usage:
-if let plistDict = loadPlist() {
-    print(plistDict)
-} else {
-    print("Failed to load plist.")
+func updateLiveActivity(name: String) {
+    guard let activity = currentActivity else { return }
+
+    let updatedContentState = YourActivityAttributes.ContentState(message: name)
+    Task {
+        await activity.update(using: updatedContentState)
+    }
 }
