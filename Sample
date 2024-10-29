@@ -1,27 +1,27 @@
-import ActivityKit
 import CloudKit
 
-var currentActivity: Activity<YourActivityAttributes>?
-
-func fetchRecordAndUpdateActivity(recordID: CKRecord.ID) {
+func createChannelSubscription() {
+    let recordType = "YourRecordType" // Replace with your CloudKit record type
     let database = CKContainer.default().publicCloudDatabase
-    
-    database.fetch(withRecordID: recordID) { record, error in
-        if let record = record, error == nil {
-            // Assume the record has a field named "name" that you want to display
-            let updatedName = record["name"] as? String ?? "Default Name"
-            updateLiveActivity(name: updatedName)
+
+    // Configure the subscription to monitor updates in your record type
+    let subscription = CKQuerySubscription(
+        recordType: recordType,
+        predicate: NSPredicate(value: true), // Adjust predicate as needed
+        options: [.firesOnRecordUpdate] // Triggers on record updates
+    )
+
+    // Set up the notification info for background notifications
+    let notificationInfo = CKSubscription.NotificationInfo()
+    notificationInfo.shouldSendContentAvailable = true // Silent push
+    subscription.notificationInfo = notificationInfo
+
+    // Save the subscription in the database
+    database.save(subscription) { savedSubscription, error in
+        if let error = error {
+            print("Error creating channel subscription: \(error.localizedDescription)")
         } else {
-            print("Error fetching record: \(error?.localizedDescription ?? "Unknown error")")
+            print("Successfully created channel subscription.")
         }
-    }
-}
-
-func updateLiveActivity(name: String) {
-    guard let activity = currentActivity else { return }
-
-    let updatedContentState = YourActivityAttributes.ContentState(message: name)
-    Task {
-        await activity.update(using: updatedContentState)
     }
 }
