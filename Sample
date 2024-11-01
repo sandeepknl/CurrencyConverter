@@ -1,27 +1,7 @@
-import CloudKit
+I hope this message finds you well. I am reaching out to request an additional monitor to improve my productivity and efficiency in my current role.
 
-func createChannelSubscription() {
-    let recordType = "YourRecordType" // Replace with your CloudKit record type
-    let database = CKContainer.default().publicCloudDatabase
+Given the nature of my tasks, working with multiple windows and applications simultaneously has become essential. An extra monitor would allow me to manage my workflow more effectively, reduce the time spent switching between windows, and improve the overall quality of my work.
 
-    // Configure the subscription to monitor updates in your record type
-    let subscription = CKQuerySubscription(
-        recordType: recordType,
-        predicate: NSPredicate(value: true), // Adjust predicate as needed
-        options: [.firesOnRecordUpdate] // Triggers on record updates
-    )
+If approved, I am confident this setup would enhance my ability to complete tasks more accurately and quickly. Please let me know if there’s a specific process to follow for this request or any additional information needed.
 
-    // Set up the notification info for background notifications
-    let notificationInfo = CKSubscription.NotificationInfo()
-    notificationInfo.shouldSendContentAvailable = true // Silent push
-    subscription.notificationInfo = notificationInfo
-
-    // Save the subscription in the database
-    database.save(subscription) { savedSubscription, error in
-        if let error = error {
-            print("Error creating channel subscription: \(error.localizedDescription)")
-        } else {
-            print("Successfully created channel subscription.")
-        }
-    }
-}
+Thank you very much for considering my request. I look forward to your response.
