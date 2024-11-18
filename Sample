@@ -1,64 +1,49 @@
-If you want your macOS application to run as a launch service (i.e., start automatically when the user logs in or runs in the background as a service), you can achieve this by setting up the app as a background agent or configuring it as a login item.
+import Cocoa
+import SwiftUI
 
-Steps to Create a macOS Launch Service
+class AppDelegate: NSObject, NSApplicationDelegate {
 
-	1.	Configure the App as a Background Agent:
-	•	Use the macOS Info.plist to set the app as a background agent.
-	2.	Register the App as a Login Item:
-	•	Add the app to macOS’s login items so it starts when the user logs in.
+    var statusItem: NSStatusItem!
 
-1. Configure as a Background Agent
-
-Edit Info.plist
-
-Add the following keys to your app’s Info.plist file:
-
-<key>LSBackgroundOnly</key>
-<true/>
-<key>LSUIElement</key>
-<true/>
-
-	•	LSBackgroundOnly: Makes the app a background-only process. It won’t show up in the Dock or App Switcher.
-	•	LSUIElement: Prevents the app from showing a UI window or menu bar.
-
-This setup creates a background service that runs without a user-facing interface.
-
-2. Register the App as a Login Item
-
-You can use the SMLoginItemSetEnabled API to register the app as a login item.
-	1.	Create a Helper App target in your project to act as a launcher.
-	2.	Use SMLoginItemSetEnabled in the main app to ensure the helper runs at login.
-
-Add Helper App to the Project
-
-	1.	Create a New Target:
-	•	In Xcode, go to File > New > Target.
-	•	Choose macOS > Application > App.
-	•	Name it something like “HelperApp.”
-	2.	Configure Helper App:
-	•	Add the LSBackgroundOnly and LSUIElement keys to the helper app’s Info.plist file.
-	•	Ensure the helper app contains only the code to launch your main app or perform background tasks.
-
-Use SMLoginItemSetEnabled
-
-In the main app, register the helper app as a login item:
-
-import ServiceManagement
-
-func enableHelperApp() {
-    let helperAppIdentifier = "com.yourcompany.HelperApp" // Replace with your helper app's bundle identifier
-    let isEnabled = SMLoginItemSetEnabled(helperAppIdentifier as CFString, true)
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Create the status bar item with a fixed length
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        
+        // Set the image for the status bar item (replace "AppIcon" with your app's image name)
+        if let button = statusItem.button {
+            button.image = NSImage(named: "AppIcon")  // Replace "AppIcon" with your app's icon
+            button.imageScaling = .scaleProportionallyDown
+        }
+        
+        // Set a tooltip that appears when the user hovers over the icon
+        statusItem.toolTip = "Your App Name"
+        
+        // Create the menu that will appear when the user clicks the status bar item
+        let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Open App", action: #selector(openApp), keyEquivalent: "O"))
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "Q"))
+        
+        statusItem.menu = menu
+    }
     
-    if !isEnabled {
-        print("Failed to enable helper app at login.")
-    } else {
-        print("Helper app enabled at login.")
+    @objc func openApp() {
+        // Handle logic for opening the main app window (if needed)
+        print("App Opened")
+    }
+    
+    @objc func quitApp() {
+        // Handle app quitting
+        NSApplication.shared.terminate(self)
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        // Clean up resources if needed
     }
 }
 
-Call this function during the main app’s setup, such as in @main.
 
-3. Run API Logic in the Background
+
+
 
 In the helper app, run your API logic directly when it starts:
 
