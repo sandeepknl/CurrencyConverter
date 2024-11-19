@@ -1,4 +1,29 @@
+import Cocoa
 
+@main
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        let mainAppBundleID = "com.yourdomain.YourMainApp" // Replace with your main app's bundle ID
+        let runningApps = NSWorkspace.shared.runningApplications
+        
+        // Check if the main app is already running
+        let isMainAppRunning = runningApps.contains { $0.bundleIdentifier == mainAppBundleID }
+
+        if !isMainAppRunning {
+            let path = Bundle.main.bundlePath as NSString
+            var components = path.pathComponents
+            components.removeLast(3) // Remove "Contents/MacOS/YourHelper"
+            components.append("MacOS")
+            components.append("YourMainApp") // Replace with your main app executable name
+
+            let newPath = NSString.path(withComponents: components)
+            NSWorkspace.shared.launchApplication(newPath)
+        }
+
+        // Quit the helper app after launching the main app
+        NSApp.terminate(nil)
+    }
+}
 import Foundation
 
 // Example HAON response as Data (replace with your actual response)
