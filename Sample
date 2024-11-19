@@ -1,3 +1,30 @@
+
+import Foundation
+
+// Example HAON response as Data (replace with your actual response)
+let haonResponse = """
+{
+    "status": "success",
+    "data": {
+        "userId": 123,
+        "name": "John Doe",
+        "email": "john.doe@example.com"
+    }
+}
+""".data(using: .utf8)!
+
+do {
+    // Parse the JSON response
+    if let json = try JSONSerialization.jsonObject(with: haonResponse, options: []) as? [String: Any],
+       let data = json["data"] as? [String: Any],
+       let name = data["name"] as? String {
+        print("User's name is: \(name)")
+    }
+} catch {
+    print("Failed to parse JSON: \(error)")
+}
+
+
 import Foundation
 import UserNotifications
 
