@@ -1,3 +1,69 @@
+import Foundation
+import UserNotifications
+
+class APIService {
+    private var timer: DispatchSourceTimer?
+
+    func startCallingAPI() {
+        let queue = DispatchQueue(label: "com.example.api-caller")
+        timer = DispatchSource.makeTimerSource(queue: queue)
+        timer?.schedule(deadline: .now(), repeating: 60.0) // Adjust interval
+        timer?.setEventHandler {
+            self.callAPI()
+        }
+        timer?.resume()
+    }
+
+    func callAPI() {
+        guard let url = URL(string: "https://example.com/api") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("API call failed: \(error)")
+                return
+            }
+
+            if let data = data {
+                let responseString = String(data: data, encoding: .utf8) ?? ""
+                print("API response: \(responseString)")
+
+                // Show notification on success
+                self.showNotification(title: "API Success", body: "Received response: \(responseString)")
+            }
+        }
+        task.resume()
+    }
+
+    func showNotification(title: String, body: String) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil // Trigger immediately
+        )
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Failed to show notification: \(error)")
+            }
+        }
+    }
+
+    func stopCallingAPI() {
+        timer?.cancel()
+        timer = nil
+    }
+}
+
+
+
+
 To create a macOS application that runs in the background and continuously calls an API after system login, you can use a Launch Agent in combination with a lightweight background macOS application. Here’s how you can achieve this:
 
 Step 1: Set Up the macOS Application
