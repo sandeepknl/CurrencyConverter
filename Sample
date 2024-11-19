@@ -1,81 +1,110 @@
-import Cocoa
-import SwiftUI
+To create a macOS application that runs in the background and continuously calls an API after system login, you can use a Launch Agent in combination with a lightweight background macOS application. Here’s how you can achieve this:
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+Step 1: Set Up the macOS Application
 
-    var statusItem: NSStatusItem!
-
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        // Create the status bar item with a fixed length
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        
-        // Set the image for the status bar item (replace "AppIcon" with your app's image name)
-        if let button = statusItem.button {
-            button.image = NSImage(named: "AppIcon")  // Replace "AppIcon" with your app's icon
-            button.imageScaling = .scaleProportionallyDown
-        }
-        
-        // Set a tooltip that appears when the user hovers over the icon
-        statusItem.toolTip = "Your App Name"
-        
-        // Create the menu that will appear when the user clicks the status bar item
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Open App", action: #selector(openApp), keyEquivalent: "O"))
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "Q"))
-        
-        statusItem.menu = menu
-    }
-    
-    @objc func openApp() {
-        // Handle logic for opening the main app window (if needed)
-        print("App Opened")
-    }
-    
-    @objc func quitApp() {
-        // Handle app quitting
-        NSApplication.shared.terminate(self)
-    }
-
-    func applicationWillTerminate(_ notification: Notification) {
-        // Clean up resources if needed
-    }
-}
-
-
-
-
-
-In the helper app, run your API logic directly when it starts:
+	1.	Create the App:
+	•	Use Xcode to create a macOS app project.
+	•	Choose the App template and configure it with minimal UI since the app will run in the background.
+	2.	API Calling Logic:
+	•	Implement the logic for API calls in a background thread or timer using URLSession.
+	•	For example, use Timer or DispatchSourceTimer to call the API repeatedly.
 
 import Foundation
 
-@main
-struct HelperApp {
-    static func main() {
-        // Run the ProductService logic here
-        let productService = ProductService()
-        productService.fetchProducts()
+class APIService {
+    private var timer: DispatchSourceTimer?
 
-        // Keep the app running in the background
-        RunLoop.main.run()
+    func startCallingAPI() {
+        let queue = DispatchQueue(label: "com.example.api-caller")
+        timer = DispatchSource.makeTimerSource(queue: queue)
+        timer?.schedule(deadline: .now(), repeating: 60.0) // Adjust interval
+        timer?.setEventHandler {
+            self.callAPI()
+        }
+        timer?.resume()
+    }
+
+    func callAPI() {
+        guard let url = URL(string: "https://example.com/api") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("API call failed: \(error)")
+                return
+            }
+
+            if let data = data {
+                print("API response: \(String(data: data, encoding: .utf8) ?? "")")
+            }
+        }
+        task.resume()
+    }
+
+    func stopCallingAPI() {
+        timer?.cancel()
+        timer = nil
     }
 }
 
-4. Debugging and Testing
 
-	1.	Run in Xcode: Make sure your app or helper runs without errors.
-	2.	Add the App to Login Items:
-	•	Check whether the app starts automatically after login by logging out and back in.
+	3.	Run in Background:
+	•	Set the app as agent-only so it doesn’t appear in the Dock or the app switcher.
+Add the following key in the Info.plist:
 
-Behavior
+<key>LSBackgroundOnly</key>
+<true/>
 
-	1.	When the user logs in, the helper app starts automatically (using SMLoginItemSetEnabled).
-	2.	The helper app performs the API call or other tasks in the background.
-	3.	The app runs as a launch service, invisible to the user unless explicitly configured otherwise.
+Step 2: Create a Launch Agent
 
-Additional Notes
+Launch Agents are used to run processes at login or on specific triggers.
+	1.	Create a Launch Agent .plist File:
+Create a .plist file in ~/Library/LaunchAgents/ (or /Library/LaunchAgents/ for all users).
+Example com.example.api-caller.plist:
 
-	•	App Permissions: Ensure your app has the necessary permissions to access the internet and perform background tasks.
-	•	Entitlements: Add the com.apple.security.application-groups entitlement if needed to share data between the main app and helper.
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.api-caller</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Applications/MyAPIApp.app/Contents/MacOS/MyAPIApp</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>
 
-Let me know if you’d like help setting up any part of this!
+
+	2.	Install the Launch Agent:
+	•	Place the .plist file in the ~/Library/LaunchAgents/ directory for the current user or /Library/LaunchAgents/ for all users.
+	•	Load the Launch Agent using the launchctl command:
+
+launchctl load ~/Library/LaunchAgents/com.example.api-caller.plist
+
+Step 3: Testing and Debugging
+
+	1.	Verify if Launch Agent is Running:
+	•	Use launchctl list to check if your agent is running:
+
+launchctl list | grep com.example.api-caller
+
+
+	2.	Check Logs:
+	•	Use Console.app or log show command to view logs:
+
+log show --predicate 'eventMessage contains "com.example.api-caller"' --info
+
+Notes
+
+	•	KeepAlive: The KeepAlive key ensures the app is restarted if it crashes.
+	•	Power Management: For energy efficiency, make sure your app isn’t consuming unnecessary resources.
+	•	Code Signing: Ensure your app is properly signed if it needs to be deployed or distributed.
+	•	System Integrity Protection (SIP): Keep SIP in mind if modifying /Library/LaunchAgents/.
+
+This setup ensures your app runs in the background and starts automatically on system login.
