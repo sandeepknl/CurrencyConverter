@@ -1,71 +1,51 @@
-Creating a Root CA certificate (DF-2-1_RootCA.pem) involves generating a private key and a self-signed certificate. Here are the steps to create one using OpenSSL:
+To issue subordinate certificates and install them on devices, follow these steps. This includes creating subordinate certificates signed by a root certificate and ensuring they are installed and trusted on iOS/iPadOS devices.
 
-Steps to Create a Root CA Certificate
+1. Issue a Subordinate Certificate
 
-1. Install OpenSSL
+To issue a subordinate certificate (amce_subca.pem), you need a root certificate and private key (DF-2-1_RootCA.pem and DF-2-1_RootCA.key).
 
-Ensure that OpenSSL is installed on your system:
-	•	Mac: OpenSSL is pre-installed. Update it using Homebrew if necessary:
+Step 1.1: Generate a Private Key for the Subordinate Certificate
 
-brew install openssl
+Run the following command to generate a private key for the subordinate CA:
 
+openssl genrsa -out amce_subca.key 4096
 
-	•	iOS/iPadOS: Use a Mac to generate the certificate, as these platforms don’t support OpenSSL natively.
+Step 1.2: Create a Certificate Signing Request (CSR)
 
-2. Generate a Private Key
+Create a CSR for the subordinate certificate:
 
-Run the following command to generate a private key for the Root CA:
+openssl req -new -key amce_subca.key -out amce_subca.csr
 
-openssl genrsa -out DF-2-1_RootCA.key 4096
+You’ll be prompted to enter certificate details:
+	•	Common Name (CN): Name for the subordinate certificate (e.g., “AMCE Subordinate CA”).
+	•	Other fields like country, organization, etc., should align with your organization’s needs.
 
-	•	This creates a 4096-bit RSA private key file named DF-2-1_RootCA.key.
+Step 1.3: Sign the Subordinate Certificate Using the Root CA
 
-3. Create a Certificate Signing Request (CSR)
+Use the root certificate and key to sign the CSR:
 
-A CSR is not required for self-signed certificates, but you can create one for consistency:
+openssl x509 -req -in amce_subca.csr -CA DF-2-1_RootCA.pem -CAkey DF-2-1_RootCA.key -CAcreateserial -out amce_subca.pem -days 3650 -sha256 -extfile v3.ext
 
-openssl req -new -key DF-2-1_RootCA.key -out DF-2-1_RootCA.csr
+Here:
+	•	-days 3650: The certificate is valid for 10 years (adjust as needed).
+	•	-extfile v3.ext: Optional, if you want to specify extensions like basicConstraints=CA:TRUE.
 
-	•	You’ll be prompted to enter information such as:
-	•	Country Name (e.g., US)
-	•	State or Province Name
-	•	Locality Name (City)
-	•	Organization Name
-	•	Organizational Unit Name
-	•	Common Name (e.g., DF-2-1 Root CA)
-	•	Email Address
-	•	Leave fields empty if not applicable.
+Example v3.ext File:
 
-4. Generate the Root CA Certificate
+basicConstraints=CA:TRUE
+keyUsage = critical, digitalSignature, keyCertSign, cRLSign
+subjectAltName = @alt_names
 
-Create a self-signed certificate using the private key:
+[alt_names]
+DNS.1 = example.com
+DNS.2 = *.example.com
 
-openssl x509 -req -days 3650 -in DF-2-1_RootCA.csr -signkey DF-2-1_RootCA.key -out DF-2-1_RootCA.pem
+After running this command, you’ll have the subordinate certificate (amce_subca.pem).
 
-	•	-days 3650: Specifies the certificate validity period (10 years).
-	•	-signkey: Indicates that this certificate is self-signed.
-	•	DF-2-1_RootCA.pem: The output certificate in PEM format.
+2. Install Subordinate Certificate on Devices
 
-5. Verify the Certificate
+Step 2.1: Transfer the Certificate to the Device
 
-To check the details of the generated certificate:
-
-openssl x509 -in DF-2-1_RootCA.pem -text -noout
-
-Generated Files
-
-	1.	DF-2-1_RootCA.key - Private key.
-	2.	DF-2-1_RootCA.pem - Root CA certificate.
-
-6. (Optional) Set up a Certificate Authority Directory
-
-If you plan to use the Root CA for issuing subordinate certificates:
-	•	Create a directory for your CA:
-
-mkdir -p /etc/df-2-1-ca
-cp DF-2-1_RootCA.pem DF-2-1_RootCA.key /etc/df-2-1-ca/
-
-
-	•	Maintain a database of issued certificates and revocation lists.
-
-Would you like instructions for issuing subordinate certificates or installing the Root CA on devices?
+Transfer the amce_subca.pem certificate to your device using one of these methods:
+	•	Email: Attach the certificate to an email and send it to your device.
+	•	
