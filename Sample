@@ -1,41 +1,114 @@
-Sending EMV data to the MagTek DynaFlex II involves using HID reports to communicate with the device, adhering to the EMV protocol defined by MagTek’s documentation. EMV communication typically requires sending specific commands and data to initiate or complete transactions. Below is a step-by-step guide for sending EMV commands to the device.
+If you are encountering the error “Cannot find HIDDeviceManager in scope”, it’s likely because the HIDDeviceManager class was not defined or implemented in your project. This is a utility class that I used as a placeholder in the example. Below, I’ll show you how to create a simple HIDDeviceManager class for managing HID devices.
 
-Steps for Sending EMV Data
+Implementing HIDDeviceManager
 
-1. Understand the EMV Commands and Structure
-
-MagTek’s documentation (protocol/API guide) will provide details on:
-	•	The specific command format for EMV transactions.
-	•	The report ID, report type, and data format for sending and receiving EMV-related data.
-
-Common steps for an EMV transaction:
-	1.	Initialize the transaction with the amount, transaction type, and currency.
-	2.	Send EMV Start Command to the device.
-	3.	Exchange APDU data for EMV card processing.
-	4.	Complete the transaction with a final status.
-
-2. Send EMV Command to Start a Transaction
-
-Use IOHIDDeviceSetReport to send the required command to the device.
+Here’s a full implementation of the HIDDeviceManager class:
 
 import IOKit.hid
 
-func sendEMVStartCommand(to device: IOHIDDevice) -> IOReturn {
-    let reportID: UInt8 = 0x02 // Example Report ID for EMV
-    let reportType = kIOHIDReportTypeOutput // EMV commands often use output reports
+class HIDDeviceManager {
+    private var hidManager: IOHIDManager!
+    private var connectedDevice: IOHIDDevice?
     
-    // Example EMV Start Command (refer to MagTek's documentation for specifics)
-    let emvCommand: [UInt8] = [
-        0x02, // STX (Start of Text)
-        0x56, // 'V' - Start EMV command identifier
-        0x30, 0x31, 0x30, 0x30, // Amount: "0100" (1.00 in cents)
-        0x00  // ETX (End of Text)
-    ]
+    init() {
+        // Create HID Manager
+        hidManager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
+        setupHIDManager()
+    }
     
-    // Convert command to Data
-    let reportData = Data(emvCommand)
+    private func setupHIDManager() {
+        // Define device matching criteria (optional)
+        let matchingDict: [String: Any] = [
+            kIOHIDDeviceUsagePageKey: kHIDPage_GenericDesktop,
+            kIOHIDDeviceUsageKey: kHIDUsage_GD_Keyboard // Adjust to match your HID device
+        ]
+        IOHIDManagerSetDeviceMatching(hidManager, matchingDict as CFDictionary)
+        
+        // Register for device connection and disconnection
+        IOHIDManagerRegisterDeviceMatchingCallback(hidManager, deviceConnectedCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
+        IOHIDManagerRegisterDeviceRemovalCallback(hidManager, deviceDisconnectedCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
+        
+        // Open HID Manager
+        IOHIDManagerOpen(hidManager, IOOptionBits(kIOHIDOptionsTypeNone))
+        
+        // Schedule with run loop
+        IOHIDManagerScheduleWithRunLoop(hidManager, CFRunLoopGetCurrent(), CFRunLoopMode.defaultMode.rawValue)
+    }
     
-    // Send the report
+    // Device Connected Callback
+    private let deviceConnectedCallback: IOHIDDeviceCallback = { context, result, sender, device in
+        guard let context = context else { return }
+        let selfRef = Unmanaged<HIDDeviceManager>.fromOpaque(context).takeUnretainedValue()
+        selfRef.handleDeviceConnected(device)
+    }
+    
+    // Device Disconnected Callback
+    private let deviceDisconnectedCallback: IOHIDDeviceCallback = { context, result, sender, device in
+        guard let context = context else { return }
+        let selfRef = Unmanaged<HIDDeviceManager>.fromOpaque(context).takeUnretainedValue()
+        selfRef.handleDeviceDisconnected(device)
+    }
+    
+    private func handleDeviceConnected(_ device: IOHIDDevice) {
+        connectedDevice = device
+        print("HID Device Connected: \(device)")
+        
+        // Example: Register for input report callbacks
+        registerInputCallback(for: device)
+    }
+    
+    private func handleDeviceDisconnected(_ device: IOHIDDevice) {
+        if device == connectedDevice {
+            connectedDevice = nil
+        }
+        print("HID Device Disconnected: \(device)")
+    }
+    
+    private func registerInputCallback(for device: IOHIDDevice) {
+        let reportBufferSize = 64 // Adjust to match device specs
+        var inputBuffer = [UInt8](repeating: 0, count: reportBufferSize)
+        
+        IOHIDDeviceRegisterInputReportCallback(
+            device,
+            &inputBuffer,
+            reportBufferSize,
+            { context, result, sender, reportType, reportID, report, reportLength in
+                guard let context = context else { return }
+                let selfRef = Unmanaged<HIDDeviceManager>.fromOpaque(context).takeUnretainedValue()
+                let responseData = Data(bytes: report, count: reportLength)
+                selfRef.handleInputReport(responseData)
+            },
+            UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+        )
+    }
+    
+    private func handleInputReport(_ data: Data) {
+        print("Received Input Report: \(data)")
+        // Parse the report as needed
+    }
+}
+
+Using HIDDeviceManager
+
+To use this class in your project:
+	1.	Create an Instance of HIDDeviceManager
+
+let hidManager = HIDDeviceManager()
+
+
+	2.	Send or Receive Reports
+After connecting to a device, use functions like sendReportToHID or handle input reports via the callback.
+
+Adding sendReportToHID
+
+Include the sendReportToHID function within the HIDDeviceManager class to send data to the connected device:
+
+func sendReportToHID(reportID: UInt8, reportType: IOHIDReportType, reportData: Data) -> IOReturn {
+    guard let device = connectedDevice else {
+        print("No connected HID device.")
+        return kIOReturnNotFound
+    }
+    
     let result = IOHIDDeviceSetReport(
         device,
         reportType,
@@ -44,73 +117,27 @@ func sendEMVStartCommand(to device: IOHIDDevice) -> IOReturn {
         reportData.count
     )
     
-    // Handle the result
     if result == kIOReturnSuccess {
-        print("EMV Start Command sent successfully.")
+        print("Report sent successfully.")
     } else {
-        print("Failed to send EMV Start Command: \(result)")
+        print("Failed to send report: \(result)")
     }
-    
     return result
 }
 
-3. Handle the Device’s Response
+Testing the Implementation
+	1.	Initialize the Manager
 
-Once the device receives the EMV command, it will send a response back (usually an input report). You need to register an input report callback to handle it.
+let hidManager = HIDDeviceManager()
 
-func registerInputCallback(for device: IOHIDDevice) {
-    let reportBufferSize = 64 // Adjust according to the device's specifications
-    var inputBuffer = [UInt8](repeating: 0, count: reportBufferSize)
-    
-    IOHIDDeviceRegisterInputReportCallback(
-        device,
-        &inputBuffer,
-        reportBufferSize,
-        { context, result, sender, reportType, reportID, report, reportLength in
-            guard let context = context else { return }
-            let selfRef = Unmanaged<HIDDeviceManager>.fromOpaque(context).takeUnretainedValue()
-            let responseData = Data(bytes: report, count: reportLength)
-            selfRef.handleDeviceResponse(responseData)
-        },
-        UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
-    )
-}
 
-func handleDeviceResponse(_ response: Data) {
-    // Process the EMV response
-    print("Received EMV Response: \(response)")
-    // Parse response according to the MagTek protocol
-}
+	2.	Send EMV Command (Example)
 
-4. Exchange APDU Commands
+let emvCommand: Data = Data([0x02, 0x56, 0x30, 0x31, 0x30, 0x30, 0x03])
+hidManager.sendReportToHID(reportID: 0x02, reportType: kIOHIDReportTypeOutput, reportData: emvCommand)
 
-During EMV processing, you may need to send APDU commands to the card via the device. This involves constructing the APDU commands and sending them as feature reports or output reports.
 
-Example APDU Command (dummy values):
 
-let apduCommand: [UInt8] = [
-    0x00, 0xA4, 0x04, 0x00, 0x07, // Select Command
-    0xA0, 0x00, 0x00, 0x03, 0x10, 0x10, 0x01, // Application Identifier (AID)
-    0x00 // Le (Length of Expected Response)
-]
+This should set up the basic scaffolding for managing HID devices, including sending and receiving data.
 
-let apduData = Data(apduCommand)
-let result = sendReportToHID(device: hidDevice, reportID: 0x02, reportType: kIOHIDReportTypeOutput, reportData: apduData)
-if result == kIOReturnSuccess {
-    print("APDU command sent successfully.")
-} else {
-    print("Failed to send APDU command: \(result)")
-}
-
-5. Finalize the EMV Transaction
-
-After exchanging the required data, send a final command to complete the transaction. This typically includes:
-	•	Confirmation of transaction status (approved/declined).
-	•	Retrieval of final EMV data.
-
-Notes
-	•	MagTek Documentation: Refer to the DynaFlex II EMV integration guide for the exact command format and expected responses.
-	•	Debugging: Use IOHIDDeviceSetReport and IOHIDDeviceRegisterInputReportCallback to test sending commands and receiving responses.
-	•	Logging: Log raw bytes sent and received for troubleshooting.
-
-If you need help parsing responses or handling errors, let me know!
+Let me know if you need help debugging or extending this!
