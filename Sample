@@ -141,3 +141,123 @@ hidManager.sendReportToHID(reportID: 0x02, reportType: kIOHIDReportTypeOutput, r
 This should set up the basic scaffolding for managing HID devices, including sending and receiving data.
 
 Let me know if you need help debugging or extending this!
+
+
+
+
+
+import Foundation
+import IOKit.hid
+
+// Define constants for HID report types
+let kIOHIDReportTypeInput: UInt8 = 0x01
+let kIOHIDReportTypeOutput: UInt8 = 0x02
+let kIOHIDReportTypeFeature: UInt8 = 0x03
+
+// HID device manager class
+class HIDDeviceManager {
+    var hidDevice: IOHIDDevice?
+    
+    // Function to retrieve the HID report descriptor
+    func getHIDDescriptor(for device: IOHIDDevice) {
+        if let descriptor = IOHIDDeviceGetReportDescriptor(device) {
+            // The descriptor is a binary blob, and it defines how the device communicates
+            print("Report Descriptor: \(descriptor)")
+            
+            // Process the report descriptor to find report IDs, types, and data structures
+            // This is where you would decode the descriptor to extract information about the report structure
+        } else {
+            print("Failed to retrieve the report descriptor.")
+        }
+    }
+    
+    // Function to list all HID devices
+    func listHIDDevices() {
+        let manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
+        
+        // Set up a matching dictionary for HID devices (modify this to match your device)
+        let matchingDictionary = [
+            kIOHIDDeviceUsagePageKey: 0x08,  // Example usage page for consumer devices
+            kIOHIDDeviceUsageKey: 0x06      // Example usage for card readers, etc.
+        ] as CFDictionary
+        
+        IOHIDManagerSetDeviceMatching(manager, matchingDictionary)
+        
+        // Open the manager
+        IOHIDManagerOpen(manager, IOOptionBits(kIOHIDOptionsTypeNone))
+        
+        // Get the list of HID devices
+        guard let devices = IOHIDManagerCopyDevices(manager) else {
+            print("Failed to find any HID devices.")
+            return
+        }
+        
+        for device in devices as! [IOHIDDevice] {
+            print("Found device: \(device)")
+            getHIDDescriptor(for: device)  // Retrieve and display the report descriptor for each device
+        }
+        
+        // Close the manager when done
+        IOHIDManagerClose(manager, IOOptionBits(kIOHIDOptionsTypeNone))
+    }
+    
+    // Function to send a report to the HID device
+    func sendHIDReportToDevice(reportID: UInt8, reportType: UInt8, reportData: [UInt8]) {
+        guard let device = hidDevice else {
+            print("No connected HID device.")
+            return
+        }
+        
+        let reportLength = reportData.count
+        
+        let result = IOHIDDeviceSetReport(device, reportType, reportID, reportData, reportLength)
+        
+        if result == kIOReturnSuccess {
+            print("Report sent successfully")
+        } else {
+            print("Failed to send report: \(result)")
+        }
+    }
+    
+    // Function to handle when device is ready to process card action
+    func updateUIForCardAction(action: CardActionState) {
+        var message: String
+        
+        switch action {
+        case .welcome:
+            message = "Welcome! Please tap, insert, or swipe your card."
+        case .tapCard:
+            message = "Please tap your card on the reader."
+        case .insertCard:
+            message = "Please insert your card into the reader."
+        case .swipeCard:
+            message = "Please swipe your card through the reader."
+        }
+        
+        // Example of sending a message to the device (output report)
+        let reportData: [UInt8] = Array(message.utf8) // Convert message to UTF-8 byte array
+        sendHIDReportToDevice(reportID: 0x02, reportType: kIOHIDReportTypeOutput, reportData: reportData)
+    }
+}
+
+// Enum to represent different card action states
+enum CardActionState {
+    case welcome
+    case tapCard
+    case insertCard
+    case swipeCard
+}
+
+// Main function to run the code
+func main() {
+    let deviceManager = HIDDeviceManager()
+    
+    // List all connected HID devices and retrieve report descriptors
+    deviceManager.listHIDDevices()
+    
+    // Update the device UI with a specific card action message
+    deviceManager.updateUIForCardAction(action: .tapCard)
+}
+
+// Run the main function
+main()
