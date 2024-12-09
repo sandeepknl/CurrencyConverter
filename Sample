@@ -1,44 +1,35 @@
-To generate Acme_subCA.pem, client.p12, and Acme_RootCA.crt, follow these steps. We’ll assume you’re using OpenSSL and already have a root CA certificate and key (Acme_RootCA.key and Acme_RootCA.crt).
+import IOKit.hid
 
-Step 1: Create Acme_SubCA (Subordinate CA) Certificate
-
-1.1 Generate the SubCA’s Private Key
-
-openssl genrsa -out Acme_subCA.key 2048
-
-1.2 Create a Certificate Signing Request (CSR) for the SubCA
-
-openssl req -new -key Acme_subCA.key -out Acme_subCA.csr
-
-	•	When prompted, fill in the required fields, ensuring the CN is unique (e.g., Acme SubCA).
-
-1.3 Sign the SubCA Certificate with the Root CA
-
-Use the root CA’s private key and certificate to sign the SubCA CSR:
-
-openssl x509 -req -in Acme_subCA.csr \
-    -CA Acme_RootCA.crt -CAkey Acme_RootCA.key -CAcreateserial \
-    -out Acme_subCA.pem -days 3650 -sha256 -extfile <(echo "basicConstraints=CA:TRUE,pathlen:0")
-
-	•	-CAcreateserial: Creates a serial file (e.g., Acme_RootCA.srl) for tracking signed certificates.
-	•	-extfile: Ensures the SubCA is treated as a CA but prevents further subordinate CAs with pathlen:0.
-
-Step 2: Create client.p12 (PKCS#12 Format Certificate)
-
-2.1 Generate the Client Private Key
-
-openssl genrsa -out client.key 2048
-
-2.2 Create a CSR for the Client
-
-openssl req -new -key client.key -out client.csr
-
-	•	Fill in fields as required (e.g., CN=Client Certificate).
-
-2.3 Sign the Client Certificate with the SubCA
-
-openssl x509 -req -in client.csr \
-    -CA Acme_subCA.pem -CAkey Acme_subCA.key -CAcreateserial \
-    -out client.crt -days 365 -sha256
-
-2.4 Convert
+func sendEMVStartCommand(to device: IOHIDDevice) -> IOReturn {
+    let reportID: UInt8 = 0x02 // Example Report ID for EMV
+    let reportType = kIOHIDReportTypeOutput // EMV commands often use output reports
+    
+    // Example EMV Start Command (refer to MagTek's documentation for specifics)
+    let emvCommand: [UInt8] = [
+        0x02, // STX (Start of Text)
+        0x56, // 'V' - Start EMV command identifier
+        0x30, 0x31, 0x30, 0x30, // Amount: "0100" (1.00 in cents)
+        0x00  // ETX (End of Text)
+    ]
+    
+    // Convert command to Data
+    let reportData = Data(emvCommand)
+    
+    // Send the report
+    let result = IOHIDDeviceSetReport(
+        device,
+        reportType,
+        reportID,
+        [UInt8](reportData),
+        reportData.count
+    )
+    
+    // Handle the result
+    if result == kIOReturnSuccess {
+        print("EMV Start Command sent successfully.")
+    } else {
+        print("Failed to send EMV Start Command: \(result)")
+    }
+    
+    return result
+}
