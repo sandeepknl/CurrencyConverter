@@ -1,3 +1,23 @@
+Sending EMV data to the MagTek DynaFlex II involves using HID reports to communicate with the device, adhering to the EMV protocol defined by MagTek’s documentation. EMV communication typically requires sending specific commands and data to initiate or complete transactions. Below is a step-by-step guide for sending EMV commands to the device.
+
+Steps for Sending EMV Data
+
+1. Understand the EMV Commands and Structure
+
+MagTek’s documentation (protocol/API guide) will provide details on:
+	•	The specific command format for EMV transactions.
+	•	The report ID, report type, and data format for sending and receiving EMV-related data.
+
+Common steps for an EMV transaction:
+	1.	Initialize the transaction with the amount, transaction type, and currency.
+	2.	Send EMV Start Command to the device.
+	3.	Exchange APDU data for EMV card processing.
+	4.	Complete the transaction with a final status.
+
+2. Send EMV Command to Start a Transaction
+
+Use IOHIDDeviceSetReport to send the required command to the device.
+
 import IOKit.hid
 
 func sendEMVStartCommand(to device: IOHIDDevice) -> IOReturn {
@@ -33,3 +53,64 @@ func sendEMVStartCommand(to device: IOHIDDevice) -> IOReturn {
     
     return result
 }
+
+3. Handle the Device’s Response
+
+Once the device receives the EMV command, it will send a response back (usually an input report). You need to register an input report callback to handle it.
+
+func registerInputCallback(for device: IOHIDDevice) {
+    let reportBufferSize = 64 // Adjust according to the device's specifications
+    var inputBuffer = [UInt8](repeating: 0, count: reportBufferSize)
+    
+    IOHIDDeviceRegisterInputReportCallback(
+        device,
+        &inputBuffer,
+        reportBufferSize,
+        { context, result, sender, reportType, reportID, report, reportLength in
+            guard let context = context else { return }
+            let selfRef = Unmanaged<HIDDeviceManager>.fromOpaque(context).takeUnretainedValue()
+            let responseData = Data(bytes: report, count: reportLength)
+            selfRef.handleDeviceResponse(responseData)
+        },
+        UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+    )
+}
+
+func handleDeviceResponse(_ response: Data) {
+    // Process the EMV response
+    print("Received EMV Response: \(response)")
+    // Parse response according to the MagTek protocol
+}
+
+4. Exchange APDU Commands
+
+During EMV processing, you may need to send APDU commands to the card via the device. This involves constructing the APDU commands and sending them as feature reports or output reports.
+
+Example APDU Command (dummy values):
+
+let apduCommand: [UInt8] = [
+    0x00, 0xA4, 0x04, 0x00, 0x07, // Select Command
+    0xA0, 0x00, 0x00, 0x03, 0x10, 0x10, 0x01, // Application Identifier (AID)
+    0x00 // Le (Length of Expected Response)
+]
+
+let apduData = Data(apduCommand)
+let result = sendReportToHID(device: hidDevice, reportID: 0x02, reportType: kIOHIDReportTypeOutput, reportData: apduData)
+if result == kIOReturnSuccess {
+    print("APDU command sent successfully.")
+} else {
+    print("Failed to send APDU command: \(result)")
+}
+
+5. Finalize the EMV Transaction
+
+After exchanging the required data, send a final command to complete the transaction. This typically includes:
+	•	Confirmation of transaction status (approved/declined).
+	•	Retrieval of final EMV data.
+
+Notes
+	•	MagTek Documentation: Refer to the DynaFlex II EMV integration guide for the exact command format and expected responses.
+	•	Debugging: Use IOHIDDeviceSetReport and IOHIDDeviceRegisterInputReportCallback to test sending commands and receiving responses.
+	•	Logging: Log raw bytes sent and received for troubleshooting.
+
+If you need help parsing responses or handling errors, let me know!
