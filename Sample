@@ -241,6 +241,27 @@ class HIDDeviceManager {
 }
 
 // Enum to represent different card action states
+
+func sendInsertOrSwipeCommand() {
+    let reportID: UInt8 = 0x01 // Replace with the correct report ID for your device
+    let reportType: IOHIDReportType = kIOHIDReportTypeOutput // Typically output reports are used
+    let command: [UInt8] = [reportID, 0x18] // Report ID + Command Byte
+
+    // Send the command to the device
+    let result = command.withUnsafeBytes { buffer in
+        IOHIDDeviceSetReport(device, reportType, reportID, buffer.baseAddress, buffer.count)
+    }
+
+    if result == kIOReturnSuccess {
+        print("Insert or Swipe Card command sent successfully.")
+    } else {
+        print("Failed to send Insert or Swipe Card command. Error: \(result)")
+    }
+}
+
+
+
+
 enum CardActionState {
     case welcome
     case tapCard
