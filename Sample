@@ -1,3 +1,27 @@
+import IOKit.usb
+
+func listUSBDevices() {
+    let matchingDict = IOServiceMatching(kIOUSBDeviceClassName)
+    var iterator: io_iterator_t = 0
+
+    let result = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iterator)
+    if result == kIOReturnSuccess {
+        var device: io_object_t
+        while (device = IOIteratorNext(iterator), device != 0) {
+            if let cfVendorID = IORegistryEntryCreateCFProperty(device, "idVendor" as CFString, kCFAllocatorDefault, 0)?.takeRetainedValue() as? NSNumber,
+               let cfProductID = IORegistryEntryCreateCFProperty(device, "idProduct" as CFString, kCFAllocatorDefault, 0)?.takeRetainedValue() as? NSNumber {
+                print("Vendor ID: \(cfVendorID), Product ID: \(cfProductID)")
+            }
+            IOObjectRelease(device)
+        }
+    }
+    IOObjectRelease(iterator)
+}
+
+listUSBDevices()
+
+
+
 @IBAction func sendCommandButtonClicked(_ sender: NSButton) {
     let hexCommand = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000"
 
