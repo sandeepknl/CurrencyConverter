@@ -1,3 +1,38 @@
+func sendCommand(to device: IOHIDDevice, command: String) {
+    guard let commandBytes = Array<UInt8>(hexString: command) else {
+        print("Invalid command format")
+        return
+    }
+    
+    // Define Report Length
+    let reportLength = 1 + commandBytes.count // 1 byte for Packet Type
+    var report = [UInt8](repeating: 0x00, count: reportLength)
+    
+    // Add command bytes
+    report[0] = 0x00 // Report ID
+    for (index, byte) in commandBytes.enumerated() {
+        report[index + 1] = byte
+    }
+    
+    // Send Report
+    let result = report.withUnsafeBytes { buffer in
+        IOHIDDeviceSetReport(device, kIOHIDReportTypeOutput, CFIndex(report[0]), buffer.baseAddress!, report.count)
+    }
+    
+    if result == kIOReturnSuccess {
+        print("Report sent successfully")
+    } else {
+        print("Failed to send report: \(result)")
+    }
+}
+
+// Example Usage
+let command = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000"
+sendCommand(to: myHIDDevice, command: command)
+
+
+
+
 import Foundation
 import IOKit.hid
 
