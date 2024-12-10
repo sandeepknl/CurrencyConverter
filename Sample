@@ -1,3 +1,39 @@
+extension Array where Element == UInt8 {
+    init?(hexString: String, desiredLength: Int = 64) {
+        self.init()
+        var hexStr = hexString
+        while hexStr.count >= 2 {
+            let byteString = String(hexStr.prefix(2))
+            guard let byte = UInt8(byteString, radix: 16) else {
+                return nil // Return nil if invalid
+            }
+            self.append(byte)
+            hexStr = String(hexStr.dropFirst(2))
+        }
+        if !hexStr.isEmpty { return nil } // Ensure no leftover characters
+        
+        // Pad to the desired length
+        while self.count < desiredLength {
+            self.append(0x00)
+        }
+        
+        // Truncate if necessary
+        if self.count > desiredLength {
+            self = Array(self.prefix(desiredLength))
+        }
+    }
+}
+
+// Example usage
+let hexString = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000"
+if let dataBytes = Array<UInt8>(hexString: hexString) {
+    print("64-byte array:", dataBytes)
+} else {
+    print("Invalid hex string")
+}
+
+
+
 func sendCommand(to device: IOHIDDevice, command: String) {
     guard let commandBytes = Array<UInt8>(hexString: command) else {
         print("Invalid command format")
