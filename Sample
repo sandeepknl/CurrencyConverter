@@ -1,3 +1,43 @@
+import Cocoa
+import JavaScriptCore
+
+class ViewController: NSViewController {
+    var jsContext: JSContext?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // Initialize JavaScript context
+        jsContext = JSContext()
+        loadJavaScriptCode()
+    }
+
+    func loadJavaScriptCode() {
+        guard let jsContext = jsContext else { return }
+
+        // Add JavaScript code to context
+        let jsCode = """
+        \(your JavaScript code as a string)
+        """
+        jsContext.evaluateScript(jsCode)
+    }
+
+    @IBAction func sendCommandButtonClicked(_ sender: NSButton) {
+        let hexCommand = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000"
+
+        guard let jsContext = jsContext else { return }
+        let sendCommand = jsContext.objectForKeyedSubscript("sendDynaflexCommand")
+        let result = sendCommand?.call(withArguments: [hexCommand])
+
+        if let response = result?.toString() {
+            print("Response from JS:", response)
+        }
+    }
+}
+
+
+
+
 let jsCode = """
 async function sendDynaflexCommand(hexCommand) {
     try {
