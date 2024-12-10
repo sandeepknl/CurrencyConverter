@@ -1,20 +1,29 @@
 import Foundation
 import IOKit.hid
 
-func sendReport(to device: IOHIDDevice, data: [UInt8]) {
-    let reportType = kIOHIDReportTypeOutput // Output report
-    let reportID: UInt8 = 0x00 // No Report ID as per the documentation
+func sendReport(to device: IOHIDDevice, rawData: String) {
+    let reportType = kIOHIDReportTypeOutput
+    let reportID: UInt8 = 0x00
 
-    // Prepare the payload (must fit within 62 bytes)
-    let payload = data.prefix(62) // Ensure the size does not exceed 62 bytes
-    let report = [reportID] + payload
+    // Convert rawData (hex string) to [UInt8]
+    let dataBytes = Array<UInt8>(hexString: rawData)
+    let maxPayloadSize = 62
+    let totalLength = dataBytes.count
 
-    // Convert to Data
+    if totalLength <= maxPayloadSize {
+        // Single packet
+        let report = [reportID] + dataBytes
+        sendPacket(to: device, report: report, reportType: reportType)
+    } else {
+        // Multi-packet: Implement head, middle, and tail packets
+        print("Data too large, implement multi-packet handling.")
+    }
+}
+
+func sendPacket(to device: IOHIDDevice, report: [UInt8], reportType: IOHIDReportType) {
     let reportData = Data(report)
-
-    // Send the report
     let result = reportData.withUnsafeBytes { buffer in
-        IOHIDDeviceSetReport(device, reportType, CFIndex(reportID), buffer.baseAddress!, report.count)
+        IOHIDDeviceSetReport(device, reportType, CFIndex(report.first!), buffer.baseAddress!, report.count)
     }
 
     if result == kIOReturnSuccess {
@@ -24,294 +33,21 @@ func sendReport(to device: IOHIDDevice, data: [UInt8]) {
     }
 }
 
-// Example usage
-let exampleData: [UInt8] = [0xAA, 0x00, 0x81, 0x04, 0x01, 0x00, 0x10, 0x01, 0x84, 0x2B, 0x10, 0x01, 0x82, 0x01, 0x3C, 0xA3, 0x09, 0x81, 0x01, 0x01, 0x82, 0x01, 0x01, 0x83, 0x01, 0x01, 0x84, 0x02, 0x00, 0x03, 0x86, 0x15, 0x9C, 0x01, 0x00, 0x9F, 0x02, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00]
-sendReport(to: myHIDDevice, data: exampleData)
-
-
-
-
-If you are encountering the error “Cannot find HIDDeviceManager in scope”, it’s likely because the HIDDeviceManager class was not defined or implemented in your project. This is a utility class that I used as a placeholder in the example. Below, I’ll show you how to create a simple HIDDeviceManager class for managing HID devices.
-
-Implementing HIDDeviceManager
-
-Here’s a full implementation of the HIDDeviceManager class:
-
-import IOKit.hid
-
-class HIDDeviceManager {
-    private var hidManager: IOHIDManager!
-    private var connectedDevice: IOHIDDevice?
-    
-    init() {
-        // Create HID Manager
-        hidManager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
-        setupHIDManager()
-    }
-    
-    private func setupHIDManager() {
-        // Define device matching criteria (optional)
-        let matchingDict: [String: Any] = [
-            kIOHIDDeviceUsagePageKey: kHIDPage_GenericDesktop,
-            kIOHIDDeviceUsageKey: kHIDUsage_GD_Keyboard // Adjust to match your HID device
-        ]
-        IOHIDManagerSetDeviceMatching(hidManager, matchingDict as CFDictionary)
-        
-        // Register for device connection and disconnection
-        IOHIDManagerRegisterDeviceMatchingCallback(hidManager, deviceConnectedCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
-        IOHIDManagerRegisterDeviceRemovalCallback(hidManager, deviceDisconnectedCallback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
-        
-        // Open HID Manager
-        IOHIDManagerOpen(hidManager, IOOptionBits(kIOHIDOptionsTypeNone))
-        
-        // Schedule with run loop
-        IOHIDManagerScheduleWithRunLoop(hidManager, CFRunLoopGetCurrent(), CFRunLoopMode.defaultMode.rawValue)
-    }
-    
-    // Device Connected Callback
-    private let deviceConnectedCallback: IOHIDDeviceCallback = { context, result, sender, device in
-        guard let context = context else { return }
-        let selfRef = Unmanaged<HIDDeviceManager>.fromOpaque(context).takeUnretainedValue()
-        selfRef.handleDeviceConnected(device)
-    }
-    
-    // Device Disconnected Callback
-    private let deviceDisconnectedCallback: IOHIDDeviceCallback = { context, result, sender, device in
-        guard let context = context else { return }
-        let selfRef = Unmanaged<HIDDeviceManager>.fromOpaque(context).takeUnretainedValue()
-        selfRef.handleDeviceDisconnected(device)
-    }
-    
-    private func handleDeviceConnected(_ device: IOHIDDevice) {
-        connectedDevice = device
-        print("HID Device Connected: \(device)")
-        
-        // Example: Register for input report callbacks
-        registerInputCallback(for: device)
-    }
-    
-    private func handleDeviceDisconnected(_ device: IOHIDDevice) {
-        if device == connectedDevice {
-            connectedDevice = nil
+// Utility: Convert hex string to [UInt8]
+extension Array where Element == UInt8 {
+    init(hexString: String) {
+        self.init()
+        var hexStr = hexString
+        while hexStr.count >= 2 {
+            let byteString = String(hexStr.prefix(2))
+            if let byte = UInt8(byteString, radix: 16) {
+                self.append(byte)
+            }
+            hexStr = String(hexStr.dropFirst(2))
         }
-        print("HID Device Disconnected: \(device)")
-    }
-    
-    private func registerInputCallback(for device: IOHIDDevice) {
-        let reportBufferSize = 64 // Adjust to match device specs
-        var inputBuffer = [UInt8](repeating: 0, count: reportBufferSize)
-        
-        IOHIDDeviceRegisterInputReportCallback(
-            device,
-            &inputBuffer,
-            reportBufferSize,
-            { context, result, sender, reportType, reportID, report, reportLength in
-                guard let context = context else { return }
-                let selfRef = Unmanaged<HIDDeviceManager>.fromOpaque(context).takeUnretainedValue()
-                let responseData = Data(bytes: report, count: reportLength)
-                selfRef.handleInputReport(responseData)
-            },
-            UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
-        )
-    }
-    
-    private func handleInputReport(_ data: Data) {
-        print("Received Input Report: \(data)")
-        // Parse the report as needed
     }
 }
 
-Using HIDDeviceManager
-
-To use this class in your project:
-	1.	Create an Instance of HIDDeviceManager
-
-let hidManager = HIDDeviceManager()
-
-
-	2.	Send or Receive Reports
-After connecting to a device, use functions like sendReportToHID or handle input reports via the callback.
-
-Adding sendReportToHID
-
-Include the sendReportToHID function within the HIDDeviceManager class to send data to the connected device:
-
-func sendReportToHID(reportID: UInt8, reportType: IOHIDReportType, reportData: Data) -> IOReturn {
-    guard let device = connectedDevice else {
-        print("No connected HID device.")
-        return kIOReturnNotFound
-    }
-    
-    let result = IOHIDDeviceSetReport(
-        device,
-        reportType,
-        reportID,
-        [UInt8](reportData),
-        reportData.count
-    )
-    
-    if result == kIOReturnSuccess {
-        print("Report sent successfully.")
-    } else {
-        print("Failed to send report: \(result)")
-    }
-    return result
-}
-
-Testing the Implementation
-	1.	Initialize the Manager
-
-let hidManager = HIDDeviceManager()
-
-
-	2.	Send EMV Command (Example)
-
-let emvCommand: Data = Data([0x02, 0x56, 0x30, 0x31, 0x30, 0x30, 0x03])
-hidManager.sendReportToHID(reportID: 0x02, reportType: kIOHIDReportTypeOutput, reportData: emvCommand)
-
-
-
-This should set up the basic scaffolding for managing HID devices, including sending and receiving data.
-
-Let me know if you need help debugging or extending this!
-
-
-
-
-
-import Foundation
-import IOKit.hid
-
-// Define constants for HID report types
-let kIOHIDReportTypeInput: UInt8 = 0x01
-let kIOHIDReportTypeOutput: UInt8 = 0x02
-let kIOHIDReportTypeFeature: UInt8 = 0x03
-
-// HID device manager class
-class HIDDeviceManager {
-    var hidDevice: IOHIDDevice?
-    
-    // Function to retrieve the HID report descriptor
-    func getHIDDescriptor(for device: IOHIDDevice) {
-        if let descriptor = IOHIDDeviceGetReportDescriptor(device) {
-            // The descriptor is a binary blob, and it defines how the device communicates
-            print("Report Descriptor: \(descriptor)")
-            
-            // Process the report descriptor to find report IDs, types, and data structures
-            // This is where you would decode the descriptor to extract information about the report structure
-        } else {
-            print("Failed to retrieve the report descriptor.")
-        }
-    }
-    
-    // Function to list all HID devices
-    func listHIDDevices() {
-        let manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
-        
-        // Set up a matching dictionary for HID devices (modify this to match your device)
-        let matchingDictionary = [
-            kIOHIDDeviceUsagePageKey: 0x08,  // Example usage page for consumer devices
-            kIOHIDDeviceUsageKey: 0x06      // Example usage for card readers, etc.
-        ] as CFDictionary
-        
-        IOHIDManagerSetDeviceMatching(manager, matchingDictionary)
-        
-        // Open the manager
-        IOHIDManagerOpen(manager, IOOptionBits(kIOHIDOptionsTypeNone))
-        
-        // Get the list of HID devices
-        guard let devices = IOHIDManagerCopyDevices(manager) else {
-            print("Failed to find any HID devices.")
-            return
-        }
-        
-        for device in devices as! [IOHIDDevice] {
-            print("Found device: \(device)")
-            getHIDDescriptor(for: device)  // Retrieve and display the report descriptor for each device
-        }
-        
-        // Close the manager when done
-        IOHIDManagerClose(manager, IOOptionBits(kIOHIDOptionsTypeNone))
-    }
-    
-    // Function to send a report to the HID device
-    func sendHIDReportToDevice(reportID: UInt8, reportType: UInt8, reportData: [UInt8]) {
-        guard let device = hidDevice else {
-            print("No connected HID device.")
-            return
-        }
-        
-        let reportLength = reportData.count
-        
-        let result = IOHIDDeviceSetReport(device, reportType, reportID, reportData, reportLength)
-        
-        if result == kIOReturnSuccess {
-            print("Report sent successfully")
-        } else {
-            print("Failed to send report: \(result)")
-        }
-    }
-    
-    // Function to handle when device is ready to process card action
-    func updateUIForCardAction(action: CardActionState) {
-        var message: String
-        
-        switch action {
-        case .welcome:
-            message = "Welcome! Please tap, insert, or swipe your card."
-        case .tapCard:
-            message = "Please tap your card on the reader."
-        case .insertCard:
-            message = "Please insert your card into the reader."
-        case .swipeCard:
-            message = "Please swipe your card through the reader."
-        }
-        
-        // Example of sending a message to the device (output report)
-        let reportData: [UInt8] = Array(message.utf8) // Convert message to UTF-8 byte array
-        sendHIDReportToDevice(reportID: 0x02, reportType: kIOHIDReportTypeOutput, reportData: reportData)
-    }
-}
-
-// Enum to represent different card action states
-
-func sendInsertOrSwipeCommand() {
-    let reportID: UInt8 = 0x01 // Replace with the correct report ID for your device
-    let reportType: IOHIDReportType = kIOHIDReportTypeOutput // Typically output reports are used
-    let command: [UInt8] = [reportID, 0x18] // Report ID + Command Byte
-
-    // Send the command to the device
-    let result = command.withUnsafeBytes { buffer in
-        IOHIDDeviceSetReport(device, reportType, reportID, buffer.baseAddress, buffer.count)
-    }
-
-    if result == kIOReturnSuccess {
-        print("Insert or Swipe Card command sent successfully.")
-    } else {
-        print("Failed to send Insert or Swipe Card command. Error: \(result)")
-    }
-}
-
-
-
-
-enum CardActionState {
-    case welcome
-    case tapCard
-    case insertCard
-    case swipeCard
-}
-
-// Main function to run the code
-func main() {
-    let deviceManager = HIDDeviceManager()
-    
-    // List all connected HID devices and retrieve report descriptors
-    deviceManager.listHIDDevices()
-    
-    // Update the device UI with a specific card action message
-    deviceManager.updateUIForCardAction(action: .tapCard)
-}
-
-// Run the main function
-main()
+// Example Usage
+let rawData = "0035AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000"
+sendReport(to: myHIDDevice, rawData: rawData)
