@@ -1,3 +1,31 @@
+@IBAction func sendCommandButtonClicked(_ sender: NSButton) {
+    let hexCommand = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000"
+
+    guard let jsContext = jsContext else { return }
+    let sendCommand = jsContext.objectForKeyedSubscript("sendDynaflexCommand")
+    
+    let promise = sendCommand?.call(withArguments: [hexCommand])
+    
+    jsContext.evaluateScript("""
+    async function handlePromise(promise) {
+        try {
+            const result = await promise;
+            return result;
+        } catch (error) {
+            return `Error: ${error.message}`;
+        }
+    }
+    """)
+
+    let handlePromise = jsContext.objectForKeyedSubscript("handlePromise")
+    if let resolvedResult = handlePromise?.call(withArguments: [promise])?.toString() {
+        print("Resolved Response:", resolvedResult)
+    }
+}
+
+
+
+
 import Cocoa
 import JavaScriptCore
 
