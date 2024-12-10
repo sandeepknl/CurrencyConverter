@@ -1,3 +1,50 @@
+async function sendCommandToDynaflex() {
+    try {
+        const devices = await navigator.hid.requestDevice({
+            filters: [{ vendorId: 0x0801, productId: 0x2020 }] // Adjust PID for your device
+        });
+
+        if (devices.length === 0) {
+            console.error("No devices found.");
+            return;
+        }
+
+        const device = devices[0];
+        await device.open();
+
+        const command = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000";
+        const commandBytes = hexToBytes(command);
+
+        const reportID = 0x00; // No report ID
+        await device.sendReport(reportID, new Uint8Array(commandBytes));
+
+        console.log("Command sent successfully!");
+
+        // Listen for a response
+        device.addEventListener("inputreport", (event) => {
+            const data = new Uint8Array(event.data.buffer);
+            console.log("Received response:", data);
+        });
+    } catch (error) {
+        console.error("Error communicating with device:", error);
+    }
+}
+
+function hexToBytes(hex) {
+    let bytes = [];
+    for (let i = 0; i < hex.length; i += 2) {
+        bytes.push(parseInt(hex.substring(i, i + 2), 16));
+    }
+    while (bytes.length < 64) {
+        bytes.push(0x00); // Pad to 64 bytes
+    }
+    return bytes;
+}
+
+
+
+
+
 extension Array where Element == UInt8 {
     init?(hexString: String, desiredLength: Int = 64) {
         self.init()
