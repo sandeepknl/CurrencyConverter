@@ -1,171 +1,40 @@
-async function sendCommandToDynaflex() {
+let jsCode = """
+async function sendDynaflexCommand(hexCommand) {
     try {
         const devices = await navigator.hid.requestDevice({
-            filters: [{ vendorId: 0x0801, productId: 0x2020 }] // Adjust PID for your device
+            filters: [{ vendorId: 0x0801, productId: 0x2020 }]
         });
 
-        if (devices.length === 0) {
-            console.error("No devices found.");
-            return;
-        }
+        if (devices.length === 0) return "No devices found";
 
         const device = devices[0];
         await device.open();
 
-        const command = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000";
-        const commandBytes = hexToBytes(command);
+        const bytes = hexToBytes(hexCommand);
+        const reportID = 0x00;
 
-        const reportID = 0x00; // No report ID
-        await device.sendReport(reportID, new Uint8Array(commandBytes));
+        await device.sendReport(reportID, new Uint8Array(bytes));
 
-        console.log("Command sent successfully!");
-
-        // Listen for a response
         device.addEventListener("inputreport", (event) => {
             const data = new Uint8Array(event.data.buffer);
-            console.log("Received response:", data);
+            console.log("Received:", data);
         });
+
+        return "Command sent successfully";
     } catch (error) {
-        console.error("Error communicating with device:", error);
+        console.error(error);
+        return `Error: ${error.message}`;
     }
 }
 
 function hexToBytes(hex) {
-    let bytes = [];
+    const bytes = [];
     for (let i = 0; i < hex.length; i += 2) {
         bytes.push(parseInt(hex.substring(i, i + 2), 16));
     }
     while (bytes.length < 64) {
-        bytes.push(0x00); // Pad to 64 bytes
+        bytes.push(0x00);
     }
     return bytes;
 }
-
-
-
-
-
-extension Array where Element == UInt8 {
-    init?(hexString: String, desiredLength: Int = 64) {
-        self.init()
-        var hexStr = hexString
-        while hexStr.count >= 2 {
-            let byteString = String(hexStr.prefix(2))
-            guard let byte = UInt8(byteString, radix: 16) else {
-                return nil // Return nil if invalid
-            }
-            self.append(byte)
-            hexStr = String(hexStr.dropFirst(2))
-        }
-        if !hexStr.isEmpty { return nil } // Ensure no leftover characters
-        
-        // Pad to the desired length
-        while self.count < desiredLength {
-            self.append(0x00)
-        }
-        
-        // Truncate if necessary
-        if self.count > desiredLength {
-            self = Array(self.prefix(desiredLength))
-        }
-    }
-}
-
-// Example usage
-let hexString = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000"
-if let dataBytes = Array<UInt8>(hexString: hexString) {
-    print("64-byte array:", dataBytes)
-} else {
-    print("Invalid hex string")
-}
-
-
-
-func sendCommand(to device: IOHIDDevice, command: String) {
-    guard let commandBytes = Array<UInt8>(hexString: command) else {
-        print("Invalid command format")
-        return
-    }
-    
-    // Define Report Length
-    let reportLength = 1 + commandBytes.count // 1 byte for Packet Type
-    var report = [UInt8](repeating: 0x00, count: reportLength)
-    
-    // Add command bytes
-    report[0] = 0x00 // Report ID
-    for (index, byte) in commandBytes.enumerated() {
-        report[index + 1] = byte
-    }
-    
-    // Send Report
-    let result = report.withUnsafeBytes { buffer in
-        IOHIDDeviceSetReport(device, kIOHIDReportTypeOutput, CFIndex(report[0]), buffer.baseAddress!, report.count)
-    }
-    
-    if result == kIOReturnSuccess {
-        print("Report sent successfully")
-    } else {
-        print("Failed to send report: \(result)")
-    }
-}
-
-// Example Usage
-let command = "AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000000"
-sendCommand(to: myHIDDevice, command: command)
-
-
-
-
-import Foundation
-import IOKit.hid
-
-func sendReport(to device: IOHIDDevice, rawData: String) {
-    let reportType = kIOHIDReportTypeOutput
-    let reportID: UInt8 = 0x00
-
-    // Convert rawData (hex string) to [UInt8]
-    let dataBytes = Array<UInt8>(hexString: rawData)
-    let maxPayloadSize = 62
-    let totalLength = dataBytes.count
-
-    if totalLength <= maxPayloadSize {
-        // Single packet
-        let report = [reportID] + dataBytes
-        sendPacket(to: device, report: report, reportType: reportType)
-    } else {
-        // Multi-packet: Implement head, middle, and tail packets
-        print("Data too large, implement multi-packet handling.")
-    }
-}
-
-func sendPacket(to device: IOHIDDevice, report: [UInt8], reportType: IOHIDReportType) {
-    let reportData = Data(report)
-    let result = reportData.withUnsafeBytes { buffer in
-        IOHIDDeviceSetReport(device, reportType, CFIndex(report.first!), buffer.baseAddress!, report.count)
-    }
-
-    if result == kIOReturnSuccess {
-        print("Report sent successfully")
-    } else {
-        print("Failed to send report: \(result)")
-    }
-}
-
-// Utility: Convert hex string to [UInt8]
-extension Array where Element == UInt8 {
-    init(hexString: String) {
-        self.init()
-        var hexStr = hexString
-        while hexStr.count >= 2 {
-            let byteString = String(hexStr.prefix(2))
-            if let byte = UInt8(byteString, radix: 16) {
-                self.append(byte)
-            }
-            hexStr = String(hexStr.dropFirst(2))
-        }
-    }
-}
-
-// Example Usage
-let rawData = "0035AA00810401001001842B100182013CA3098101018201018301018402000386159C01009F0206000000000"
-sendReport(to: myHIDDevice, rawData: rawData)
+"""
