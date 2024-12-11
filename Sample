@@ -1,3 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynaflex II Control</title>
+    <script type="module" src="mmsdemo.js"></script>
+</head>
+<body>
+    <button id="deviceOpen">Open Device</button>
+    <button id="sendCommand">Send Command</button>
+</body>
+</html>
+
+
+
 To integrate the mmsdemo.js functionality into a macOS application, you’ll follow these steps:
 
 1. Integrate WKWebView in Your macOS App
