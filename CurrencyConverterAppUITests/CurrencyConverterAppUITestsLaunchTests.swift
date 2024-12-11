@@ -1,3 +1,140 @@
+The JavaScript code you’ve shared appears to provide various functions for UI updates and interacting with device-related information in the context of a web application. To integrate this into your macOS app with a WebView, I’ll walk you through how to load and execute this code correctly using a WebView in a macOS app.
+
+Steps to Integrate JavaScript into macOS WebView
+	1.	Ensure All Dependencies Are Loaded: Make sure all the JavaScript files (like mt_utils.js) are loaded before your main JavaScript (mt_ui.js), especially if there are interdependencies.
+	2.	Load the HTML into the WebView: The WebView in macOS will load an HTML file that references these JavaScript files.
+	3.	Invoke JavaScript Functions from Swift: Use the evaluateJavaScript method to invoke JavaScript functions from your Swift code after the page is loaded.
+
+Full Code Example for macOS WebView Integration
+
+1. HTML File (index.html)
+
+This is the HTML file that will be loaded in the WebView. Ensure that it includes all the necessary JavaScript files and has the required elements like updDeviceContainer, progressContainer, progressBar, and so on.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebView Example</title>
+
+    <!-- Include mt_ui.js and mt_utils.js -->
+    <script src="mt_utils.js"></script>
+    <script src="mt_ui.js"></script>
+</head>
+<body>
+    <h1>Welcome to the WebView App</h1>
+
+    <!-- Example HTML elements for UI updates -->
+    <div id="updDeviceContainer" style="visibility: hidden;">
+        <p></p>
+    </div>
+    <div id="progressContainer" style="visibility: hidden;">
+        <div id="progressBar" style="width: 0%;"></div>
+    </div>
+    <textarea id="LogData" rows="10" cols="50"></textarea>
+
+    <!-- Device links container -->
+    <div id="device-links"></div>
+
+    <!-- QR Code container -->
+    <img id="QRCode" src="" alt="QR Code">
+
+    <script>
+        window.onload = function() {
+            // Example usage of functions from mt_ui.js
+            updateProgressBar("Initializing", 50);
+            LogData("Starting process...");
+            DeviceDisplay("Device Connected");
+
+            // Example function call
+            AddDeviceLink("device", "Device 1", "connected", "#");
+            UpdateQRCode("SampleQRCodeData");
+        };
+    </script>
+</body>
+</html>
+
+2. Swift Code to Load HTML into WebView
+
+Here’s how you can load this HTML file into the WebView and call JavaScript functions from Swift.
+
+ViewController.swift:
+
+import Cocoa
+import WebKit
+
+class ViewController: NSViewController {
+
+    var webView: WKWebView!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // Create the WebView
+        let webConfiguration = WKWebViewConfiguration()
+        webView = WKWebView(frame: self.view.frame, configuration: webConfiguration)
+
+        // Add the WebView to the current view
+        self.view.addSubview(webView)
+
+        // Load the HTML file from the app's resources
+        if let htmlPath = Bundle.main.path(forResource: "index", ofType: "html") {
+            let url = URL(fileURLWithPath: htmlPath)
+            let request = URLRequest(url: url)
+            webView.load(request)
+        } else {
+            print("HTML file not found!")
+        }
+
+        // Wait for the WebView to finish loading
+        webView.navigationDelegate = self
+    }
+}
+
+// Extend WKNavigationDelegate to handle page load events
+extension ViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // JavaScript call after page load
+        webView.evaluateJavaScript("updateProgressBar('Loading...', 70)") { (result, error) in
+            if let error = error {
+                print("Error executing JavaScript: \(error.localizedDescription)")
+            } else {
+                print("JavaScript executed successfully!")
+            }
+        }
+
+        // Example: Log data to the log
+        webView.evaluateJavaScript("LogData('Page loaded successfully.')") { (result, error) in
+            if let error = error {
+                print("Error executing LogData function: \(error.localizedDescription)")
+            }
+        }
+    }
+}
+
+Explanation:
+	1.	HTML Structure:
+	•	The HTML file contains elements like updDeviceContainer, progressContainer, progressBar, LogData, and so on, which are updated dynamically by JavaScript functions.
+	•	The JavaScript files (mt_utils.js, mt_ui.js) are loaded into the HTML <head> to make sure they are available when the page is loaded.
+	2.	WebView Setup:
+	•	The WKWebView is created and added to the view hierarchy in the viewDidLoad method of the Swift view controller.
+	•	The HTML file (index.html) is loaded into the WebView using the load method. Make sure the HTML file is added to the Xcode project and bundled with the app.
+	3.	Interacting with JavaScript from Swift:
+	•	After the WebView finishes loading (didFinish navigation), we can call JavaScript functions using evaluateJavaScript.
+	•	In this example, we are calling updateProgressBar and LogData from JavaScript to interact with the WebView content.
+	4.	Using JavaScript Functions:
+	•	The JavaScript functions (updateProgressBar, LogData, DeviceDisplay, etc.) are defined in the mt_ui.js and mt_utils.js files, which are loaded in the HTML file before execution.
+
+Debugging and Testing:
+	•	Web Inspector: Open Safari, go to Develop > [Your App Name], and inspect the WebView console for any JavaScript errors. This will help you identify if there are any issues with the JavaScript functions not being executed properly.
+	•	Testing JavaScript Calls: Use evaluateJavaScript in Swift to call specific functions and check for errors.
+
+By following these steps, you should be able to load your HTML and JavaScript content in a WebView within a macOS app, and call JavaScript functions dynamically from Swift.
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
