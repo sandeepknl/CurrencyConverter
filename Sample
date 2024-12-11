@@ -1,3 +1,121 @@
+To integrate the mmsdemo.js functionality into a macOS application, you’ll follow these steps:
+
+1. Integrate WKWebView in Your macOS App
+
+WKWebView will allow your macOS app to load an HTML page and interact with the JavaScript functions.
+
+2. macOS App Setup (Swift)
+
+Use WKScriptMessageHandler to send and receive messages between Swift and JavaScript.
+
+Create the WebView
+
+Add a WKWebView to your macOS app and load the HTML file that references mmsdemo.js.
+
+import Cocoa
+import WebKit
+
+class ViewController: NSViewController, WKScriptMessageHandler {
+    
+    var webView: WKWebView!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Set up WebView
+        let config = WKWebViewConfiguration()
+        config.userContentController.add(self, name: "macApp") // Handle JS messages
+        
+        webView = WKWebView(frame: self.view.frame, configuration: config)
+        view.addSubview(webView)
+        
+        // Load HTML
+        if let url = Bundle.main.url(forResource: "index", withExtension: "html") {
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+        }
+    }
+    
+    // Handle JavaScript messages
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "macApp" {
+            print("Message from JS: \(message.body)")
+        }
+    }
+}
+
+3. HTML with Buttons
+
+Your index.html file should contain buttons with unique IDs that match the JavaScript functions you want to call.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynaflex II Control</title>
+    <script type="module" src="mmsdemo.js"></script>
+</head>
+<body>
+    <button id="deviceOpen">Open Device</button>
+    <button id="sendCommand">Send Command</button>
+</body>
+</html>
+
+4. Sending Messages to JavaScript
+
+To trigger JavaScript functions from Swift:
+
+@IBAction func openDeviceClicked(_ sender: NSButton) {
+    webView.evaluateJavaScript("handleOpenButton()") { result, error in
+        if let error = error {
+            print("Error: \(error)")
+        } else {
+            print("Device opened: \(result ?? "No result")")
+        }
+    }
+}
+
+@IBAction func sendCommandClicked(_ sender: NSButton) {
+    let command = "SENDCOMMAND,AA00810401031001843D1001820178A3098101008201008301038402020386279C01009F02060000000001009F03060000000000005F2A0208405F3601029F150200009F530100"
+    webView.evaluateJavaScript("handleSendCommandButton('\(command)')") { result, error in
+        if let error = error {
+            print("Error: \(error)")
+        } else {
+            print("Command sent: \(result ?? "No result")")
+        }
+    }
+}
+
+5. Receiving Messages from JavaScript
+
+Modify the JavaScript code to send messages to the macOS app using window.webkit.messageHandlers.
+
+Example in mmsdemo.js:
+
+async function handleOpenButton() {
+    window._device = await mt_MMS.openDevice();
+    window.webkit.messageHandlers.macApp.postMessage("Device opened successfully");
+}
+
+async function handleSendCommandButton(command) {
+    const response = await mt_MMS.sendCommand(command);
+    window.webkit.messageHandlers.macApp.postMessage(`Command response: ${response}`);
+}
+
+6. Connect UI in Storyboard
+
+Add buttons in your macOS app’s storyboard and link their actions to the Swift functions (openDeviceClicked, sendCommandClicked, etc.).
+
+Result
+	•	Clicking Open Device in the macOS app will call handleOpenButton in JavaScript to open the Dynaflex II device.
+	•	Clicking Send Command in the macOS app will execute handleSendCommandButton with a command to send to the device.
+
+This setup allows bidirectional communication between your macOS app and the JavaScript handling Dynaflex II operations.
+
+
+
+
+
 import * as mt_Utils from "./mt_utils.js";
 import * as mt_MMS from "./mt_mms.js";
 import * as mt_HID from "./mt_hid.js";
