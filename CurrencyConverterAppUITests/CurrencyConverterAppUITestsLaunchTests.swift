@@ -1,3 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebView Example</title>
+    <!-- Load JavaScript files -->
+    <script src="mt_utils.js"></script>
+    <script src="mt_ui.js"></script>
+    <script src="mt_events.js"></script>
+    <script src="mt_hid.js"></script>
+    <script src="mt_mms.js"></script>
+    <script src="mt_rms_api.js"></script>
+    <script src="mt_rms_mms.js"></script>
+</head>
+<body>
+    <h1>Welcome to the WebView App</h1>
+
+    <!-- Call JavaScript Functions -->
+    <script>
+        // Example: Calling a function from mt_ui.js
+        updateProgressBar('Initializing', 50);
+        LogData('Device initialized.');
+    </script>
+</body>
+</html>
+
+
+
+
 To create a macOS application with a WebView that runs the JavaScript code you’ve provided, you’ll need to integrate a WebView in a macOS application. You can achieve this by using WKWebView (WebKit) in a native macOS application built with Swift. Here’s how to set it up and run the provided JavaScript code in a WebView.
 
 Step-by-Step Guide to Build macOS Application with WebView
