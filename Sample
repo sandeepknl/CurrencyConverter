@@ -1,3 +1,126 @@
+If your HTML works fine in Chrome but not in Safari, and you want to make it work in a macOS app using WKWebView (Safari’s WebKit engine), here are some steps to troubleshoot and work around the issue:
+
+1. Understand the Compatibility Issue
+	•	Inspect your HTML/CSS/JavaScript:
+	•	Check for features that are supported in Chrome but not in Safari. Use tools like Can I Use to identify feature support for Safari.
+	•	Common issues may include:
+	•	Use of experimental JavaScript features (e.g., ES2022).
+	•	CSS properties or values unsupported in Safari.
+	•	Web APIs exclusive to Chrome.
+	•	Use Safari Developer Tools:
+	•	Open your HTML in Safari and check for errors in the Web Inspector (Develop > Show Web Inspector).
+	•	This will often reveal JavaScript errors or unsupported features.
+
+2. Enable WebKit Experimental Features
+
+Safari’s WebKit engine has experimental features that you can enable in WKWebView to improve compatibility.
+
+Example:
+
+Enable these features in your WKWebView configuration:
+
+import Cocoa
+import WebKit
+
+class ViewController: NSViewController {
+
+    var webView: WKWebView!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // WKWebView configuration
+        let config = WKWebViewConfiguration()
+        config.preferences.setValue(true, forKey: "developerExtrasEnabled") // Enable developer tools
+        config.preferences.setValue(true, forKey: "javaScriptEnabled") // Ensure JavaScript is enabled
+        config.preferences.setValue(true, forKey: "javaScriptCanOpenWindowsAutomatically") // Allow popups
+
+        // WebView
+        webView = WKWebView(frame: self.view.bounds, configuration: config)
+        webView.autoresizingMask = [.width, .height]
+        self.view.addSubview(webView)
+
+        // Load your HTML
+        if let url = URL(string: "https://your-chrome-supported-html.com") {
+            webView.load(URLRequest(url: url))
+        }
+    }
+}
+
+3. Use Polyfills or Libraries
+
+To support Safari’s WebKit engine, you may need to use polyfills for unsupported features.
+
+Example:
+	•	Use Babel for JavaScript transpiling to ensure compatibility.
+	•	Include a polyfill like core-js to enable missing browser features:
+
+<script src="https://cdn.jsdelivr.net/npm/core-js-bundle@3.6.5/minified.js"></script>
+
+4. Serve a Chrome-Specific Experience
+
+If you’re hosting your HTML, you can detect the user agent and serve Safari-specific fixes.
+
+Example: Detecting Safari in JavaScript
+
+if (navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome")) {
+    // Apply Safari-specific fixes
+    console.log("You're using Safari!");
+}
+
+Example: In HTML with WKWebView
+
+You can modify the user agent in WKWebView to request a Chrome-like experience:
+
+config.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
+
+5. Try WKWebView’s Chromium-Based Alternative
+
+If you cannot resolve the compatibility issues, consider embedding Chromium directly using:
+	1.	CEF (Chromium Embedded Framework): A full Chromium rendering engine.
+	•	This will ensure full Chrome compatibility.
+	2.	Electron: Build your app as an Electron app, which uses Chromium.
+
+6. Render HTML Locally
+
+If your HTML is local (not hosted on a server), ensure all resources are accessible by WKWebView:
+
+Example: Loading Local HTML in WKWebView
+
+let htmlPath = Bundle.main.path(forResource: "index", ofType: "html")!
+let htmlURL = URL(fileURLWithPath: htmlPath)
+webView.loadFileURL(htmlURL, allowingReadAccessTo: htmlURL.deletingLastPathComponent())
+
+7. Debug and Fix Specific Safari Issues
+
+Safari-specific fixes might include:
+
+CSS Issues:
+	•	Use Safari-specific media queries or CSS hacks:
+
+@supports (-webkit-touch-callout: none) {
+    /* Safari-specific styles */
+}
+
+
+
+JavaScript Issues:
+	•	For unsupported JavaScript APIs, check compatibility and use alternative approaches or polyfills.
+
+Web APIs:
+	•	Check for Safari compatibility for APIs like WebRTC, WebGL, or Web Animations API.
+
+When to Use WKWebView or Chromium
+
+Scenario	Recommendation
+You can adapt your HTML for WebKit	Use WKWebView.
+HTML relies heavily on Chrome-specific APIs	Use CEF or Electron.
+You only need small patches for Safari	Use polyfills or feature detection.
+
+If you’d like assistance fixing a specific compatibility issue or transitioning to a Chromium-based engine, let me know!
+
+
+
 To integrate this JavaScript code into a macOS application and use two buttons from a storyboard to interact with the dynaflex device, follow these steps:
 
 1. Set Up a macOS Application in Xcode
