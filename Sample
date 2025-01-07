@@ -1,24 +1,64 @@
-Thank you for sharing the reference to Dynaflex. Based on the document you mentioned, which appears to be related to the MagTek product line and Dynaflex, this document defines the command structure and protocols used for interfacing with MagTek devices, such as card readers and other peripheral hardware.
+Let’s decode the request AA008104010610018442100182013CA30E81010082010084030000018402000386279C01009F02060000000001009F03060000000000005F2A0208405F360 step-by-step based on the TLV format described in the documentation.
 
-Since I don’t have direct access to external documents, I can’t view the exact content of the URL you provided. However, I can provide some guidance based on typical Dynaflex commands and their usage in the context of MagTek.
+Header
+	•	AA: Start of Message byte (constant).
+	•	00: API Framework Version (Pre-production development version).
+	•	81 04: Tag 81, Length = 4 bytes.
+	•	01 06 10 01: Message Information.
+	•	01: Request from host to device.
+	•	06 10: Command group and ID (0x1006 – Enable Manual Card Entry).
+	•	01: Message reference number (used to match responses).
 
-Here’s how you would generally interpret the structure of a Dynaflex command, assuming it uses a format similar to TLV (Tag-Length-Value), or any other proprietary encoding format MagTek may define:
-	1.	Command Byte: The command byte typically indicates the action or request being made to the device, such as initializing the reader, processing a transaction, or retrieving data.
-	2.	Tags: Tags (like 9F02 for “Amount Authorized”) will represent specific data elements needed for a particular action or protocol. These tags would be defined in the documentation you referenced.
-	3.	Length: The length field often follows the tag to specify how many bytes of data follow, so the receiving system knows how many bytes to read for a particular field.
-	4.	Data Field: This would be the actual data or the value, such as an amount, transaction ID, or other parameters.
-	5.	End of Command: Some protocols may include a checksum or an end-of-command byte to ensure the data integrity.
+Tag: 84 (Payload Information)
+	•	84 42: Tag 84, Length = 42 bytes.
+	•	10 01: Transaction information (general context for the operation).
+	•	82 01 3C A3 0E: Sub-parameters for MCE configuration.
+	•	82 01: Indicates parameter for transaction configuration.
+	•	3C A3 0E: Likely transaction-specific data (meaning dependent on specific documentation).
+	•	81 01 00: Swipe mode.
+	•	81: Parameter for swipe functionality.
+	•	01 00: Disabled.
+	•	82 01 00: Insert mode.
+	•	82: Parameter for insert functionality.
+	•	01 00: Disabled.
+	•	84 03 00 00 01: MCE-specific configuration.
+	•	84: Tag for MCE mode.
+	•	03: Length = 3 bytes.
+	•	00 00 01: Enables Manual Card Entry.
+	•	84 02 00 03: Additional configuration.
+	•	84: Sub-parameter for MCE settings.
+	•	02: Length = 2 bytes.
+	•	00 03: Details for MCE behavior.
+	•	86 27: Additional payload.
+	•	Likely related to user interface or feedback.
 
-If you can provide more specific details about the Dynaflex command or what you are trying to achieve (e.g., processing an amount, reading card data, etc.), I can give more detailed help in breaking down the command structure or provide specific examples from the document.
+Tag: 9C (Transaction Type)
+	•	9C 01 00: Tag 9C, Length = 1 byte, Value = 00.
+	•	00: Indicates transaction type (e.g., sale or manual entry initiation).
 
-Example Process Flow:
-	1.	Send Command to Device: For example, if you’re sending a command to perform a financial transaction, you may be sending a start transaction command along with the amount and other required parameters.
-	2.	Parse Response: Once the command is executed, you’ll receive a response, which will include transaction status, amount, or error codes, all encoded using TLV or a similar encoding format.
-	3.	Handle Errors/Responses: You’ll need to validate the response (e.g., checking for error codes or successful completion) based on the tags returned by the device.
+Tag: 9F02 (Amount)
+	•	9F 02 06 00 00 00 00 00 00: Tag 9F02, Length = 6 bytes.
+	•	00 00 00 00 00 00: Amount field (all zeros).
 
-Key Steps to Follow:
-	•	Ensure you’re familiar with the MagTek protocol or commands as described in the documentation you referenced.
-	•	Make sure you’re correctly formatting your commands, adhering to any tag lengths and values required by Dynaflex.
-	•	If the amount is involved, ensure you’re using the correct tag (like 9F02) and encoding the data correctly, following the length specification in the document.
+Tag: 9F03 (Cashback Amount)
+	•	9F 03 06 00 00 00 00 00 00: Tag 9F03, Length = 6 bytes.
+	•	00 00 00 00 00 00: Cashback field (all zeros).
 
-If you share specific portions of the document or need help with a particular tag or value, feel free to ask!
+Tag: 5F2A (Currency Code)
+	•	5F 2A 02 08 40: Tag 5F2A, Length = 2 bytes.
+	•	08 40: Currency code (ISO 4217).
+	•	08 40 = 2112 (decimal), representing USD (United States Dollar).
+
+Tag: 5F36 (Currency Exponent)
+	•	5F 36 0?: This tag appears incomplete in the provided string. Based on context, it should represent the currency exponent (e.g., 2 for cents).
+
+Summary
+	•	This request:
+	1.	Disables swipe, insert, and tap modes.
+	2.	Enables Manual Card Entry (MCE).
+	3.	Sets transaction type, amount, and currency information for the MCE process.
+	4.	Configures specific UI/UX behavior for the DynaFlex device during manual entry.
+
+If the device isn’t responding as expected, ensure that:
+	1.	Other modes (tap, swipe, insert) are properly disabled before sending the command.
+	2.	Configuration tags for MCE match the device’s expected parameters.
