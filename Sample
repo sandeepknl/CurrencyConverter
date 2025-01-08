@@ -1,69 +1,80 @@
 
-AA008104010610018442100182013CA30E81010082010084030000018402000386279C01009F02060000000001009F03060000000000005F2A020840
+To decode the given MCE enable request AA008104010610018442100182013CA30E81010083010084030000018402000386279C01009F02060000000001009F03060000000000005F2A0208405F3601029F150200009F530100, let’s break it into its components based on the structure described in the documentation:
 
-
-
-Let’s decode the request AA008104010610018442100182013CA30E81010082010084030000018402000386279C01009F02060000000001009F03060000000000005F2A0208405F360 step-by-step based on the TLV format described in the documentation.
-
-Header
-	•	AA: Start of Message byte (constant).
-	•	00: API Framework Version (Pre-production development version).
-	•	81 04: Tag 81, Length = 4 bytes.
-	•	01 06 10 01: Message Information.
+Request Structure Breakdown
+	1.	Start of Message and Version (Non-TLV)
+	•	AA: Start of message byte.
+	•	00: API Framework Version (Pre-production development).
+	2.	Tag 81 (Message Information)
+	•	81: Tag indicating message information.
+	•	04: Length of the tag (4 bytes).
+	•	0106:
 	•	01: Request from host to device.
-	•	06 10: Command group and ID (0x1006 – Enable Manual Card Entry).
-	•	01: Message reference number (used to match responses).
+	•	06: Message reference number.
+	•	1001: Command ID (Start Transaction).
+	3.	Tag 84 (Request Payload)
+	•	84: Request Payload tag.
+	•	42: Length (66 bytes).
+	•	100182013CA30E81010083010084030000018402000386279C01009F02060000000001009F03060000000000005F2A0208405F3601029F150200009F530100: Payload value (detailed below).
 
-Tag: 84 (Payload Information)
-	•	84 42: Tag 84, Length = 42 bytes.
-	•	10 01: Transaction information (general context for the operation).
-	•	82 01 3C A3 0E: Sub-parameters for MCE configuration.
-	•	82 01: Indicates parameter for transaction configuration.
-	•	3C A3 0E: Likely transaction-specific data (meaning dependent on specific documentation).
-	•	81 01 00: Swipe mode.
-	•	81: Parameter for swipe functionality.
-	•	01 00: Disabled.
-	•	82 01 00: Insert mode.
-	•	82: Parameter for insert functionality.
-	•	01 00: Disabled.
-	•	84 03 00 00 01: MCE-specific configuration.
-	•	84: Tag for MCE mode.
-	•	03: Length = 3 bytes.
-	•	00 00 01: Enables Manual Card Entry.
-	•	84 02 00 03: Additional configuration.
-	•	84: Sub-parameter for MCE settings.
-	•	02: Length = 2 bytes.
-	•	00 03: Details for MCE behavior.
-	•	86 27: Additional payload.
-	•	Likely related to user interface or feedback.
+Payload Value Breakdown
 
-Tag: 9C (Transaction Type)
-	•	9C 01 00: Tag 9C, Length = 1 byte, Value = 00.
-	•	00: Indicates transaction type (e.g., sale or manual entry initiation).
+General Structure:
+	•	100182013CA30E:
+	•	10: Reserved or device-specific identifier.
+	•	0182: Indicates specific configuration or settings.
+	•	013C: Amount to display (0x013C = 316 in decimal, in cents).
+	•	A30E: Device-specific or custom-defined value.
+	•	810100:
+	•	81: Sub-tag indicating swipe card mode.
+	•	01: Length (1 byte).
+	•	00: Swipe card mode disabled.
+	•	830100:
+	•	83: Sub-tag indicating insert card mode.
+	•	01: Length (1 byte).
+	•	00: Insert card mode disabled.
+	•	8403000001:
+	•	84: Sub-tag indicating manual card entry (MCE) settings.
+	•	03: Length (3 bytes).
+	•	000001: MCE enabled with default feedback and configuration.
+	•	84020003:
+	•	84: Sub-tag for device mode settings.
+	•	02: Length (2 bytes).
+	•	0003: General settings or operation mode.
+	•	8627:
+	•	86: Tag for transaction type or specific indicator.
+	•	27: Length or identifier.
+	•	9C01:
+	•	9C: Transaction type tag.
+	•	01: Indicates manual entry transaction.
+	•	9F02060000000001:
+	•	9F02: Amount tag.
+	•	06: Length (6 bytes).
+	•	000000000001: Transaction amount (1 cent in decimal).
+	•	9F0306000000000000:
+	•	9F03: Tag for secondary amount.
+	•	06: Length (6 bytes).
+	•	000000000000: No secondary amount.
+	•	5F2A020840:
+	•	5F2A: Currency code tag.
+	•	02: Length (2 bytes).
+	•	0840: USD currency code (840 in ISO 4217).
+	•	5F360102:
+	•	5F36: Additional data or currency exponent.
+	•	01: Length (1 byte).
+	•	02: Indicates the currency exponent.
+	•	9F15020000:
+	•	9F15: Merchant category code (MCC).
+	•	02: Length (2 bytes).
+	•	0000: MCC set to default or unspecified.
+	•	9F530100:
+	•	9F53: Tag for terminal capabilities.
+	•	01: Length (1 byte).
+	•	00: Indicates basic or default terminal capabilities.
 
-Tag: 9F02 (Amount)
-	•	9F 02 06 00 00 00 00 00 00: Tag 9F02, Length = 6 bytes.
-	•	00 00 00 00 00 00: Amount field (all zeros).
+Final Notes
+	•	The command appears correctly formatted for enabling Manual Card Entry (MCE) with specified amounts, currency, and mode configurations.
+	•	Removing or modifying parts like 5F36 may affect the currency exponent or related settings, depending on the device’s requirements. If you have specific changes in mind, let me know for further assistance.
 
-Tag: 9F03 (Cashback Amount)
-	•	9F 03 06 00 00 00 00 00 00: Tag 9F03, Length = 6 bytes.
-	•	00 00 00 00 00 00: Cashback field (all zeros).
 
-Tag: 5F2A (Currency Code)
-	•	5F 2A 02 08 40: Tag 5F2A, Length = 2 bytes.
-	•	08 40: Currency code (ISO 4217).
-	•	08 40 = 2112 (decimal), representing USD (United States Dollar).
 
-Tag: 5F36 (Currency Exponent)
-	•	5F 36 0?: This tag appears incomplete in the provided string. Based on context, it should represent the currency exponent (e.g., 2 for cents).
-
-Summary
-	•	This request:
-	1.	Disables swipe, insert, and tap modes.
-	2.	Enables Manual Card Entry (MCE).
-	3.	Sets transaction type, amount, and currency information for the MCE process.
-	4.	Configures specific UI/UX behavior for the DynaFlex device during manual entry.
-
-If the device isn’t responding as expected, ensure that:
-	1.	Other modes (tap, swipe, insert) are properly disabled before sending the command.
-	2.	Configuration tags for MCE match the device’s expected parameters.
