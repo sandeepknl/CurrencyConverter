@@ -1,125 +1,104 @@
+Below is a basic example of how you can use Twilio's Conversations API in an iOS app using Swift. This example demonstrates how to initialize the Twilio Conversations client, create a conversation, and send a message.
+
+### Prerequisites
+1. **Twilio Account**: You need a Twilio account and a Conversations Service SID.
+2. **Twilio Conversations SDK**: Install the Twilio Conversations SDK via CocoaPods or Swift Package Manager.
+3. **Access Token**: Generate an access token from your server to authenticate the client.
+
+### Installation
+Add the Twilio Conversations SDK to your project using CocoaPods:
+```ruby
+pod 'TwilioConversationsClient'
+```
+Or use Swift Package Manager:
+1. Go to `File > Swift Packages > Add Package Dependency`.
+2. Enter the repository URL: `https://github.com/twilio/twilio-conversations-ios`.
+
+### Code Example
+
+```swift
 import UIKit
+import TwilioConversationsClient
 
-// Array of image URLs
-let imageUrls: [URL] = (1...100).compactMap { URL(string: "https://example.com/image\($0).jpg") }
+class ViewController: UIViewController {
 
-// Serial queue for loading images
-let serialQueue = DispatchQueue(label: "com.example.imageLoadingQueue")
+    var client: TwilioConversationsClient?
+    var conversation: TCHConversation?
 
-// Array to store loaded images
-var loadedImages: [UIImage] = []
-
-// Function to download an image from a URL
-func downloadImage(from url: URL, completion: @escaping (UIImage?) -> Void) {
-    let task = URLSession.shared.dataTask(with: url) { data, response, error in
-        if let data = data, let image = UIImage(data: data) {
-            completion(image)
-        } else {
-            completion(nil)
-        }
-    }
-    task.resume()
-}
-
-// Process the URLs serially
-for url in imageUrls {
-    serialQueue.async {
-        let semaphore = DispatchSemaphore(value: 0) // Semaphore for waiting until the image is loaded
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
-        downloadImage(from: url) { image in
-            if let image = image {
-                print("Loaded image from \(url)")
-                loadedImages.append(image)
+        // Replace with your access token
+        let accessToken = "YOUR_ACCESS_TOKEN"
+        
+        // Initialize the Twilio Conversations Client
+        TwilioConversationsClient.conversationsClient(withToken: accessToken, properties: nil, delegate: self) { (result, client) in
+            if let client = client {
+                self.client = client
+                print("Twilio Conversations Client initialized successfully!")
+                
+                // Create or join a conversation
+                self.createOrJoinConversation(uniqueName: "my_conversation")
             } else {
-                print("Failed to load image from \(url)")
+                print("Failed to initialize Twilio Conversations Client: \(String(describing: result.error))")
             }
-            semaphore.signal() // Signal the semaphore to continue
         }
-        
-        semaphore.wait() // Wait until the signal is received
+    }
+
+    func createOrJoinConversation(uniqueName: String) {
+        client?.conversation(withSidOrUniqueName: uniqueName) { (result, conversation) in
+            if let conversation = conversation {
+                self.conversation = conversation
+                print("Conversation found or created: \(conversation.sid ?? "")")
+                
+                // Send a message
+                self.sendMessage("Hello, Twilio!")
+            } else {
+                print("Failed to find or create conversation: \(String(describing: result.error))")
+            }
+        }
+    }
+
+    func sendMessage(_ message: String) {
+        let messageOptions = TCHMessageOptions().withBody(message)
+        conversation?.sendMessage(with: messageOptions) { (result, message) in
+            if result.isSuccessful {
+                print("Message sent successfully!")
+            } else {
+                print("Failed to send message: \(String(describing: result.error))")
+            }
+        }
     }
 }
 
-// Once all images are loaded
-serialQueue.async {
-    print("Finished loading all images. Total images loaded: \(loadedImages.count)")
+// MARK: - TwilioConversationsClientDelegate
+extension ViewController: TwilioConversationsClientDelegate {
+    func conversationsClient(_ client: TwilioConversationsClient, synchronizationStatusUpdated status: TCHClientSynchronizationStatus) {
+        if status == .completed {
+            print("Client synchronization completed!")
+        }
+    }
+    
+    func conversationsClientTokenWillExpire(_ client: TwilioConversationsClient) {
+        print("Access token will expire soon. Refresh the token.")
+        // Implement token refresh logic here
+    }
+    
+    func conversationsClientTokenExpired(_ client: TwilioConversationsClient) {
+        print("Access token expired. Refresh the token.")
+        // Implement token refresh logic here
+    }
 }
-To decode the given MCE enable request AA008104010610018442100182013CA30E81010083010084030000018402000386279C01009F02060000000001009F03060000000000005F2A0208405F3601029F150200009F530100, let’s break it into its components based on the structure described in the documentation:
+```
 
-Request Structure Breakdown
-	1.	Start of Message and Version (Non-TLV)
-	•	AA: Start of message byte.
-	•	00: API Framework Version (Pre-production development).
-	2.	Tag 81 (Message Information)
-	•	81: Tag indicating message information.
-	•	04: Length of the tag (4 bytes).
-	•	0106:
-	•	01: Request from host to device.
-	•	06: Message reference number.
-	•	1001: Command ID (Start Transaction).
-	3.	Tag 84 (Request Payload)
-	•	84: Request Payload tag.
-	•	42: Length (66 bytes).
-	•	100182013CA30E81010083010084030000018402000386279C01009F02060000000001009F03060000000000005F2A0208405F3601029F150200009F530100: Payload value (detailed below).
+### Steps to Run the Code
+1. Replace `YOUR_ACCESS_TOKEN` with a valid access token generated from your server.
+2. Run the app on a simulator or device.
+3. The app will initialize the Twilio Conversations client, create or join a conversation, and send a message.
 
-Payload Value Breakdown
+### Notes
+- **Access Token**: The access token should be generated on your server using your Twilio Account SID, API Key, and API Secret. Never hardcode these credentials in your app.
+- **Error Handling**: Add proper error handling for production use.
+- **Token Refresh**: Implement token refresh logic in the `conversationsClientTokenWillExpire` and `conversationsClientTokenExpired` delegate methods.
 
-General Structure:
-	•	100182013CA30E:
-	•	10: Reserved or device-specific identifier.
-	•	0182: Indicates specific configuration or settings.
-	•	013C: Amount to display (0x013C = 316 in decimal, in cents).
-	•	A30E: Device-specific or custom-defined value.
-	•	810100:
-	•	81: Sub-tag indicating swipe card mode.
-	•	01: Length (1 byte).
-	•	00: Swipe card mode disabled.
-	•	830100:
-	•	83: Sub-tag indicating insert card mode.
-	•	01: Length (1 byte).
-	•	00: Insert card mode disabled.
-	•	8403000001:
-	•	84: Sub-tag indicating manual card entry (MCE) settings.
-	•	03: Length (3 bytes).
-	•	000001: MCE enabled with default feedback and configuration.
-	•	84020003:
-	•	84: Sub-tag for device mode settings.
-	•	02: Length (2 bytes).
-	•	0003: General settings or operation mode.
-	•	8627:
-	•	86: Tag for transaction type or specific indicator.
-	•	27: Length or identifier.
-	•	9C01:
-	•	9C: Transaction type tag.
-	•	01: Indicates manual entry transaction.
-	•	9F02060000000001:
-	•	9F02: Amount tag.
-	•	06: Length (6 bytes).
-	•	000000000001: Transaction amount (1 cent in decimal).
-	•	9F0306000000000000:
-	•	9F03: Tag for secondary amount.
-	•	06: Length (6 bytes).
-	•	000000000000: No secondary amount.
-	•	5F2A020840:
-	•	5F2A: Currency code tag.
-	•	02: Length (2 bytes).
-	•	0840: USD currency code (840 in ISO 4217).
-	•	5F360102:
-	•	5F36: Additional data or currency exponent.
-	•	01: Length (1 byte).
-	•	02: Indicates the currency exponent.
-	•	9F15020000:
-	•	9F15: Merchant category code (MCC).
-	•	02: Length (2 bytes).
-	•	0000: MCC set to default or unspecified.
-	•	9F530100:
-	•	9F53: Tag for terminal capabilities.
-	•	01: Length (1 byte).
-	•	00: Indicates basic or default terminal capabilities.
-
-Final Notes
-	•	The command appears correctly formatted for enabling Manual Card Entry (MCE) with specified amounts, currency, and mode configurations.
-	•	Removing or modifying parts like 5F36 may affect the currency exponent or related settings, depending on the device’s requirements. If you have specific changes in mind, let me know for further assistance.
-
-
-
+For more details, refer to the [Twilio Conversations iOS SDK Documentation](https://www.twilio.com/docs/conversations/sdks).
