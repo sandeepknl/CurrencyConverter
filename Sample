@@ -1,104 +1,54 @@
-Below is a basic example of how you can use Twilio's Conversations API in an iOS app using Swift. This example demonstrates how to initialize the Twilio Conversations client, create a conversation, and send a message.
+func bulkInsertOrUpdateBiologicalFields(_ fields: [FieldData], context: NSManagedObjectContext, completion: @escaping (Bool) -> Void) {
+    context.performAndWait {
+        for field in fields {
+            let fetchRequest: NSFetchRequest<BiologicalField> = BiologicalField.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", field.id ?? "")
 
-### Prerequisites
-1. **Twilio Account**: You need a Twilio account and a Conversations Service SID.
-2. **Twilio Conversations SDK**: Install the Twilio Conversations SDK via CocoaPods or Swift Package Manager.
-3. **Access Token**: Generate an access token from your server to authenticate the client.
-
-### Installation
-Add the Twilio Conversations SDK to your project using CocoaPods:
-```ruby
-pod 'TwilioConversationsClient'
-```
-Or use Swift Package Manager:
-1. Go to `File > Swift Packages > Add Package Dependency`.
-2. Enter the repository URL: `https://github.com/twilio/twilio-conversations-ios`.
-
-### Code Example
-
-```swift
-import UIKit
-import TwilioConversationsClient
-
-class ViewController: UIViewController {
-
-    var client: TwilioConversationsClient?
-    var conversation: TCHConversation?
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // Replace with your access token
-        let accessToken = "YOUR_ACCESS_TOKEN"
-        
-        // Initialize the Twilio Conversations Client
-        TwilioConversationsClient.conversationsClient(withToken: accessToken, properties: nil, delegate: self) { (result, client) in
-            if let client = client {
-                self.client = client
-                print("Twilio Conversations Client initialized successfully!")
-                
-                // Create or join a conversation
-                self.createOrJoinConversation(uniqueName: "my_conversation")
-            } else {
-                print("Failed to initialize Twilio Conversations Client: \(String(describing: result.error))")
-            }
+            let existingField = try? context.fetch(fetchRequest).first ?? NSEntityDescription.insertNewObject(forEntityName: "BiologicalField", into: context) as! BiologicalField
+            
+            existingField?.fieldId = field.fieldID
+            existingField?.id = field.id
+            existingField?.fieldName = field.fieldName
+            existingField?.fieldSize = field.fieldSize
+            existingField?.fieldUnit = field.fieldUnit
+            existingField?.countryId = field.countryID
+            existingField?.startDate = field.startDate
+            existingField?.endDate = field.endDate
+            existingField?.updatedDate = field.updateAt
+            existingField?.cropId = field.cropID
+            existingField?.cropVariety = field.cropVariety
+            existingField?.farmer = field.farmer
+            existingField?.sowingDate = field.sowingDate
+            existingField?.latitude = field.latitude
+            existingField?.longitude = field.longitude
+            existingField?.locationName = field.locationName
+            existingField?.origin = field.origin
+            existingField?.status = field.status
+            existingField?.lastModified = field.lastModified
+            existingField?.locationId = field.locationID
+            existingField?.market = field.market
+            existingField?.plotCount = field.plotCount
+            existingField?.cropName = field.cropName
+            existingField?.farmerName = field.farmerName
+            existingField?.fieldUnitMeasure = field.fieldUnitMeasure
+            existingField?.userId = BioDataCollectionSession.shared.readBiologicalUser()?.readUserId()
+            existingField?.flowStatus = field.flowStatus
+            existingField?.lastSyncDate = field.last_sync_date
+            existingField?.tempFieldId = field.tempId
+            existingField?.createdBy = field.createdBy
+            existingField?.previousCrop = field.previousCrop
+            existingField?.isTilled = field.isTilled
+            existingField?.previousCropName = field.previousCropName
+            existingField?.soilType = field.soilType
+            existingField?.soilTypeId = field.soilTypeId
         }
-    }
-
-    func createOrJoinConversation(uniqueName: String) {
-        client?.conversation(withSidOrUniqueName: uniqueName) { (result, conversation) in
-            if let conversation = conversation {
-                self.conversation = conversation
-                print("Conversation found or created: \(conversation.sid ?? "")")
-                
-                // Send a message
-                self.sendMessage("Hello, Twilio!")
-            } else {
-                print("Failed to find or create conversation: \(String(describing: result.error))")
-            }
-        }
-    }
-
-    func sendMessage(_ message: String) {
-        let messageOptions = TCHMessageOptions().withBody(message)
-        conversation?.sendMessage(with: messageOptions) { (result, message) in
-            if result.isSuccessful {
-                print("Message sent successfully!")
-            } else {
-                print("Failed to send message: \(String(describing: result.error))")
-            }
+        
+        do {
+            try context.save()
+            completion(true)
+        } catch {
+            print("Failed to save bulk insert/update: \(error)")
+            completion(false)
         }
     }
 }
-
-// MARK: - TwilioConversationsClientDelegate
-extension ViewController: TwilioConversationsClientDelegate {
-    func conversationsClient(_ client: TwilioConversationsClient, synchronizationStatusUpdated status: TCHClientSynchronizationStatus) {
-        if status == .completed {
-            print("Client synchronization completed!")
-        }
-    }
-    
-    func conversationsClientTokenWillExpire(_ client: TwilioConversationsClient) {
-        print("Access token will expire soon. Refresh the token.")
-        // Implement token refresh logic here
-    }
-    
-    func conversationsClientTokenExpired(_ client: TwilioConversationsClient) {
-        print("Access token expired. Refresh the token.")
-        // Implement token refresh logic here
-    }
-}
-```
-
-### Steps to Run the Code
-1. Replace `YOUR_ACCESS_TOKEN` with a valid access token generated from your server.
-2. Run the app on a simulator or device.
-3. The app will initialize the Twilio Conversations client, create or join a conversation, and send a message.
-
-### Notes
-- **Access Token**: The access token should be generated on your server using your Twilio Account SID, API Key, and API Secret. Never hardcode these credentials in your app.
-- **Error Handling**: Add proper error handling for production use.
-- **Token Refresh**: Implement token refresh logic in the `conversationsClientTokenWillExpire` and `conversationsClientTokenExpired` delegate methods.
-
-For more details, refer to the [Twilio Conversations iOS SDK Documentation](https://www.twilio.com/docs/conversations/sdks).
