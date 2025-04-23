@@ -1,54 +1,13 @@
-func bulkInsertOrUpdateBiologicalFields(_ fields: [FieldData], context: NSManagedObjectContext, completion: @escaping (Bool) -> Void) {
-    context.performAndWait {
-        for field in fields {
-            let fetchRequest: NSFetchRequest<BiologicalField> = BiologicalField.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %@", field.id ?? "")
+#!/bin/bash
 
-            let existingField = try? context.fetch(fetchRequest).first ?? NSEntityDescription.insertNewObject(forEntityName: "BiologicalField", into: context) as! BiologicalField
-            
-            existingField?.fieldId = field.fieldID
-            existingField?.id = field.id
-            existingField?.fieldName = field.fieldName
-            existingField?.fieldSize = field.fieldSize
-            existingField?.fieldUnit = field.fieldUnit
-            existingField?.countryId = field.countryID
-            existingField?.startDate = field.startDate
-            existingField?.endDate = field.endDate
-            existingField?.updatedDate = field.updateAt
-            existingField?.cropId = field.cropID
-            existingField?.cropVariety = field.cropVariety
-            existingField?.farmer = field.farmer
-            existingField?.sowingDate = field.sowingDate
-            existingField?.latitude = field.latitude
-            existingField?.longitude = field.longitude
-            existingField?.locationName = field.locationName
-            existingField?.origin = field.origin
-            existingField?.status = field.status
-            existingField?.lastModified = field.lastModified
-            existingField?.locationId = field.locationID
-            existingField?.market = field.market
-            existingField?.plotCount = field.plotCount
-            existingField?.cropName = field.cropName
-            existingField?.farmerName = field.farmerName
-            existingField?.fieldUnitMeasure = field.fieldUnitMeasure
-            existingField?.userId = BioDataCollectionSession.shared.readBiologicalUser()?.readUserId()
-            existingField?.flowStatus = field.flowStatus
-            existingField?.lastSyncDate = field.last_sync_date
-            existingField?.tempFieldId = field.tempId
-            existingField?.createdBy = field.createdBy
-            existingField?.previousCrop = field.previousCrop
-            existingField?.isTilled = field.isTilled
-            existingField?.previousCropName = field.previousCropName
-            existingField?.soilType = field.soilType
-            existingField?.soilTypeId = field.soilTypeId
-        }
-        
-        do {
-            try context.save()
-            completion(true)
-        } catch {
-            print("Failed to save bulk insert/update: \(error)")
-            completion(false)
-        }
-    }
-}
+APP_NAME="YourAppName"
+APP_SUPPORT_DIR="$HOME/Library/Application Support/$APP_NAME"
+APP_PATH="/Applications/$APP_NAME.app"
+
+echo "Removing $APP_NAME from Applications..."
+rm -rf "$APP_PATH"
+
+echo "Removing $APP_NAME data from Application Support..."
+rm -rf "$APP_SUPPORT_DIR"
+
+echo "Uninstall complete."
